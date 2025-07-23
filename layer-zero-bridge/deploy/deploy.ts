@@ -40,20 +40,23 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
         throw new Error(`DEX router not configured for network: ${network.name}. Please update the dexRouters mapping.`);
     }
     
-    // Deploy CustomStablecoinOFT first
+    // Deploy CustomStablecoinOFT first - using standard OFT constructor
     const stablecoinOFT = await deploy('CustomStablecoinOFT', {
         from: deployer,
         args: [
-            'Payfunds USD',
-            'PFUSD',
-            lzEndpoint,
-            deployer,
-            6,
-            0
+            'Payfunds USD',  // name
+            'PFUSD',         // symbol
+            lzEndpoint,      // LayerZero endpoint
+            deployer         // owner
         ],
         log: true,
         waitConfirmations: 1,
     });
+
+    console.log(`✅ CustomStablecoinOFT deployed on ${network.name}:`);
+    console.log(`   Address: ${stablecoinOFT.address}`);
+    console.log(`   Transaction: ${stablecoinOFT.transactionHash}`);
+    console.log('');
 
     // Deploy CrossChainRouter
     const crossChainRouter = await deploy('CrossChainRouter', {
@@ -67,6 +70,18 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
         log: true,
         waitConfirmations: 1,
     });
+
+    console.log(`✅ CrossChainRouter deployed on ${network.name}:`);
+    console.log(`   Address: ${crossChainRouter.address}`);
+    console.log(`   Transaction: ${crossChainRouter.transactionHash}`);
+    console.log('');
+    
+    console.log(`🎉 Deployment Summary for ${network.name}:`);
+    console.log(`   CustomStablecoinOFT: ${stablecoinOFT.address}`);
+    console.log(`   CrossChainRouter: ${crossChainRouter.address}`);
+    console.log(`   LayerZero Endpoint: ${lzEndpoint}`);
+    console.log(`   DEX Router: ${dexRouter}`);
+    console.log('─'.repeat(80));
 };
 
 deployFunction.tags = ['CrossChainRouter', 'CustomStablecoinOFT'];

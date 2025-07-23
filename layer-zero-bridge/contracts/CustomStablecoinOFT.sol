@@ -10,9 +10,6 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
  * @dev This is a basic implementation for testnet/development purposes
  */
 contract CustomStablecoinOFT is OFT {
-    /// @notice Decimals for the stablecoin (typically 6 or 18)
-    uint8 private _decimals;
-
     /// @notice Total supply cap (optional)
     uint256 public maxSupply;
 
@@ -37,30 +34,18 @@ contract CustomStablecoinOFT is OFT {
      * @param _symbol The symbol of the stablecoin
      * @param _lzEndpoint The LayerZero endpoint address
      * @param _owner The owner address
-     * @param _decimals_ The number of decimals
-     * @param _maxSupply The maximum supply (0 for unlimited)
      */
     constructor(
         string memory _name,
         string memory _symbol,
         address _lzEndpoint,
-        address _owner,
-        uint8 _decimals_,
-        uint256 _maxSupply
+        address _owner
     ) OFT(_name, _symbol, _lzEndpoint, _owner) Ownable(_owner) {
-        _decimals = _decimals_;
-        maxSupply = _maxSupply;
+        maxSupply = 0; // Unlimited supply
         
         // Add owner as initial minter
         minters[_owner] = true;
         emit MinterAdded(_owner);
-    }
-
-    /**
-     * @notice Returns the number of decimals
-     */
-    function decimals() public view override returns (uint8) {
-        return _decimals;
     }
 
     /**

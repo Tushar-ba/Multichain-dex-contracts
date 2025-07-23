@@ -58,7 +58,7 @@ const config: HardhatUserConfig = {
     },
     'ethereum-sepolia': {
         eid: EndpointId.SEPOLIA_V2_TESTNET,
-        url: vars.get("SEPOLIA_RPC_URL", "https://eth-sepolia.g.alchemy.com/v2/your-api-key"),
+        url: vars.get("SEPOLIA_RPC_URL", "https://eth-sepolia.g.alchemy.com/v2/Ln0Aa5Ea0iyVV0mh6RpyT"),
         accounts: accounts ? [accounts] : [],
         verify: {
           etherscan: {
