@@ -74,6 +74,7 @@
     "hardhat-deploy": "^0.12.1"
   },
   "dependencies": {
-    "@layerzerolabs/oft-evm": "^3.2.0"
+    "@layerzerolabs/oft-evm": "^3.2.0",
+    "@nomicfoundation/hardhat-verify": "^2.1.0"
   }
 }

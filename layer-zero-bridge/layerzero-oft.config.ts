@@ -7,26 +7,13 @@ import { OAppEnforcedOption, OmniPointHardhat } from '@layerzerolabs/toolbox-har
 const arbitrumStablecoin: OmniPointHardhat = {
   eid: EndpointId.ARBSEP_V2_TESTNET,
   contractName: 'CustomStablecoinOFT',
-  address: '0x47F655BeE339Eb0ae8c51a7aa827055811b1C344',
+  address: '0xD96d3eC1d7eF8f49F8966E88d5F3E80E71BED6Ba',
 };
 
 const avalancheStablecoin: OmniPointHardhat = {
   eid: EndpointId.AVALANCHE_V2_TESTNET,
   contractName: 'CustomStablecoinOFT',
-  address: '0x79F5bba2fa86D631fEd5F87211b0619a2635A167',
-};
-
-// Define CrossChainRouter contract deployments for ONLY deployed networks
-const arbitrumRouter: OmniPointHardhat = {
-  eid: EndpointId.ARBSEP_V2_TESTNET,
-  contractName: 'CrossChainRouter',
-  address: '0xD96d3eC1d7eF8f49F8966E88d5F3E80E71BED6Ba',
-};
-
-const avalancheRouter: OmniPointHardhat = {
-  eid: EndpointId.AVALANCHE_V2_TESTNET,
-  contractName: 'CrossChainRouter',
-  address: '0x095Cd2f67F3b932a18f39eBC48bF5E7ef263BcAA',
+  address: '0x6093Ea528F924e760902C5452CeF4d0Db6000981',
 };
 
 // Configure enforced options for OFT transfers (msg type 1)
@@ -35,16 +22,6 @@ const OFT_ENFORCED_OPTIONS: OAppEnforcedOption[] = [
     msgType: 1, // Standard OFT transfer
     optionType: ExecutorOptionType.LZ_RECEIVE,
     gas: 200000, // Gas for OFT _lzReceive
-    value: 0,
-  },
-];
-
-// Configure enforced options for CrossChainRouter messages (msg type 1)
-const ROUTER_ENFORCED_OPTIONS: OAppEnforcedOption[] = [
-  {
-    msgType: 1, // CrossChain swap message
-    optionType: ExecutorOptionType.LZ_RECEIVE,
-    gas: 500000, // Gas for CrossChainRouter _lzReceive (includes DEX swap)
     value: 0,
   },
 ];
@@ -60,33 +37,15 @@ const oftPathways: TwoWayConfig[] = [
   ],
 ];
 
-// Define pathways for CrossChainRouter (only between deployed networks)
-const routerPathways: TwoWayConfig[] = [
-  [
-    arbitrumRouter,
-    avalancheRouter,
-    [['LayerZero Labs'], []],
-    [1, 1],
-    [ROUTER_ENFORCED_OPTIONS, ROUTER_ENFORCED_OPTIONS],
-  ],
-];
-
 export default async function () {
-  // Combine all pathways into a single array
-  const allPathways = [...oftPathways, ...routerPathways];
-  
-  // Generate connections config from all pathways
-  const connections = await generateConnectionsConfig(allPathways);
+  // Generate connections config from OFT pathways
+  const connections = await generateConnectionsConfig(oftPathways);
   
   return {
     contracts: [
       // OFT contracts (only deployed networks)
       { contract: arbitrumStablecoin },
       { contract: avalancheStablecoin },
-      
-      // Router contracts (only deployed networks)
-      { contract: arbitrumRouter },
-      { contract: avalancheRouter },
     ],
     connections,
   };

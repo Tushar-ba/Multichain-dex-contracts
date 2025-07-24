@@ -40,7 +40,7 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
         throw new Error(`DEX router not configured for network: ${network.name}. Please update the dexRouters mapping.`);
     }
     
-    // Deploy CustomStablecoinOFT first - using standard OFT constructor
+    // Deploy CustomStablecoinOFT first
     const stablecoinOFT = await deploy('CustomStablecoinOFT', {
         from: deployer,
         args: [
@@ -58,14 +58,14 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     console.log(`   Transaction: ${stablecoinOFT.transactionHash}`);
     console.log('');
 
-    // Deploy CrossChainRouter
+    // Deploy CrossChainRouter with updated constructor parameters
     const crossChainRouter = await deploy('CrossChainRouter', {
         from: deployer,
         args: [
-            lzEndpoint,
-            deployer,
-            dexRouter,
-            stablecoinOFT.address,
+            lzEndpoint,               // LayerZero endpoint
+            deployer,                 // owner
+            dexRouter,                // PayfundsRouter02 address
+            stablecoinOFT.address,    // CustomStablecoinOFT address
         ],
         log: true,
         waitConfirmations: 1,
@@ -75,12 +75,25 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     console.log(`   Address: ${crossChainRouter.address}`);
     console.log(`   Transaction: ${crossChainRouter.transactionHash}`);
     console.log('');
+
+    // Display helpful information for setting up LayerZero
+    console.log(`🔧 Setup Instructions for ${network.name}:`);
+    console.log(`   1. Set LayerZero OFT peers between chains`);
+    console.log(`   2. Configure trusted remotes for CrossChainRouter`);
+    console.log(`   3. Fund CrossChainRouter with native tokens for gas`);
+    console.log(`   4. Update task configuration with deployed addresses`);
+    console.log('');
     
     console.log(`🎉 Deployment Summary for ${network.name}:`);
     console.log(`   CustomStablecoinOFT: ${stablecoinOFT.address}`);
     console.log(`   CrossChainRouter: ${crossChainRouter.address}`);
     console.log(`   LayerZero Endpoint: ${lzEndpoint}`);
     console.log(`   DEX Router: ${dexRouter}`);
+    console.log('');
+    
+    console.log(`📋 Update tasks/task.ts with these addresses:`);
+    console.log(`   CustomStablecoinOFT: '${stablecoinOFT.address}',`);
+    console.log(`   CrossChainRouter: '${crossChainRouter.address}',`);
     console.log('─'.repeat(80));
 };
 

@@ -5,11 +5,13 @@ pragma solidity ^0.8.19;
 import {OApp} from "@layerzerolabs/oapp-evm/contracts/oapp/OApp.sol";
 import {Origin} from "@layerzerolabs/oapp-evm/contracts/oapp/OApp.sol";
 import {MessagingFee} from "@layerzerolabs/oapp-evm/contracts/oapp/OApp.sol";
-import {CrossChainOptionsType3} from "./CrossChainOptionsType3.sol";
+import {OAppOptionsType3} from "@layerzerolabs/oapp-evm/contracts/oapp/libs/OAppOptionsType3.sol";
 
-// OFT imports for composition
+// OpenZeppelin Imports
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+
+// OFT imports for token bridging
 import {IOFT, SendParam, MessagingReceipt} from "@layerzerolabs/oft-evm/contracts/interfaces/IOFT.sol";
-import {OFTComposeMsgCodec} from "@layerzerolabs/oft-evm/contracts/libs/OFTComposeMsgCodec.sol";
 
 // Your DEX and Token Interfaces
 interface IPayfundsRouter02 {
@@ -38,20 +40,39 @@ interface IERC20 {
 
 /**
  * @title CrossChainRouter
- * @notice A router that enables cross-chain token swaps using LayerZero Compose functionality
- * @dev This contract receives stablecoins via OFT and performs swaps using lzCompose
+ * @notice A router that enables complete cross-chain token swaps using LayerZero and PayfundsRouter
+ * @dev This contract handles destination gas properly by sending gas along with LayerZero messages
  */
-contract CrossChainRouter is OApp, CrossChainOptionsType3 {
+contract CrossChainRouter is OApp, OAppOptionsType3 {
+    /// @notice Message type for cross-chain swaps
+    uint16 public constant SWAP = 1;
+
     /// @notice The local DEX router used for token swaps
     IPayfundsRouter02 public immutable dexRouter;
-    
+
     /// @notice The stablecoin OFT contract used for bridging
     IOFT public immutable stablecoinOFT;
     
-    /// @notice The stablecoin address
+    /// @notice The stablecoin address used as an intermediary for cross-chain swaps
     address public immutable stablecoin;
 
-    /// @notice Emitted when a cross-chain swap is initiated
+    /// @notice Gas amount required for destination swap execution
+    uint256 public constant DESTINATION_GAS_LIMIT = 500000; // Adjust based on your needs
+
+    /// @notice Pending swaps waiting for stablecoin arrival
+    mapping(bytes32 => PendingSwap) public pendingSwaps;
+
+    struct PendingSwap {
+        bytes32 recipient;
+        bytes32 destinationToken;
+        uint256 amountOutMin;
+        uint256 stableAmount;
+        address refundRecipient; // Who gets refund if swap fails
+        uint256 timestamp;
+        bool executed;
+    }
+
+    /// @notice Events
     event CrossChainSwapInitiated(
         address indexed sender,
         uint32 destinationEid,
@@ -63,16 +84,28 @@ contract CrossChainRouter is OApp, CrossChainOptionsType3 {
         uint256 amountOutMin
     );
 
-    /// @notice Emitted when a cross-chain swap is completed
     event CrossChainSwapCompleted(
+        uint32 indexed sourceEid,
         bytes32 indexed recipient,
         bytes32 destinationToken,
         uint256 stableAmount,
         uint256 amountOut
     );
 
-    /// @notice Error when compose message is invalid
-    error InvalidComposeMsg();
+    event SwapInstructionsReceived(
+        bytes32 indexed swapId,
+        bytes32 recipient,
+        bytes32 destinationToken,
+        uint256 stableAmount,
+        uint256 amountOutMin
+    );
+
+    event SwapFailed(
+        bytes32 indexed swapId,
+        bytes32 recipient,
+        uint256 stableAmount,
+        string reason
+    );
 
     /**
      * @notice Initializes the CrossChainRouter
@@ -86,64 +119,108 @@ contract CrossChainRouter is OApp, CrossChainOptionsType3 {
         address _owner,
         address _dexRouter,
         address _stablecoinOFT
-    ) OApp(_lzEndpoint, _owner) CrossChainOptionsType3(_owner) {
+    ) OApp(_lzEndpoint, _owner) OAppOptionsType3() Ownable(_owner) {
         dexRouter = IPayfundsRouter02(_dexRouter);
         stablecoinOFT = IOFT(_stablecoinOFT);
-        stablecoin = _stablecoinOFT; // Assuming the OFT contract is also the token
+        stablecoin = _stablecoinOFT;
     }
 
     /**
-     * @notice Internal function required by OApp to handle LayerZero messages
-     * @dev This implementation doesn't handle regular messages, only compose messages
+     * @notice Handles incoming cross-chain messages (swap instructions)
+     * @dev Called by the LayerZero endpoint when a message is received
+     * @dev This function is paid for by the gas sent along with the message
      */
     function _lzReceive(
         Origin calldata _origin,
         bytes32 _guid,
         bytes calldata _message,
-        address _executor,
-        bytes calldata _extraData
+        address,
+        bytes calldata
     ) internal override {
-        // This router only handles compose messages, not regular lzReceive messages
-        // Regular OFT transfers with compose will trigger lzCompose instead
-        revert("CrossChainRouter: Only compose messages supported");
-    }
-
-    /**
-     * @notice Handles LayerZero compose messages (called after OFT transfer)
-     * @param _from The source address (OFT contract)
-     * @param _guid The global unique identifier
-     * @param _message The compose message containing swap instructions
-     * @param _executor The executor address
-     * @param _extraData Additional data
-     */
-    function lzCompose(
-        address _from,
-        bytes32 _guid,
-        bytes calldata _message,
-        address _executor,
-        bytes calldata _extraData
-    ) external payable {
-        // Ensure the message is from our trusted OFT contract
-        require(_from == address(stablecoinOFT), "Unauthorized compose caller");
-
-        // Extract the amount transferred using OFTComposeMsgCodec
-        uint256 stableAmount = OFTComposeMsgCodec.amountLD(_message);
-        
-        // Extract our custom compose message using OFTComposeMsgCodec
-        bytes memory composeMsg = OFTComposeMsgCodec.composeMsg(_message);
-        
-        // Decode our swap instructions from the compose message
+        // Decode the swap instructions
         (
             bytes32 recipient,
             bytes32 destinationToken,
-            uint256 amountOutMin
-        ) = abi.decode(composeMsg, (bytes32, bytes32, uint256));
+            uint256 amountOutMin,
+            uint256 stableAmount,
+            address refundRecipient
+        ) = abi.decode(_message, (bytes32, bytes32, uint256, uint256, address));
 
-        // Ensure we have the expected stablecoins
+        // Create unique swap ID
+        bytes32 swapId = keccak256(abi.encodePacked(_origin.srcEid, _guid, recipient));
+
+        // Store pending swap
+        pendingSwaps[swapId] = PendingSwap({
+            recipient: recipient,
+            destinationToken: destinationToken,
+            amountOutMin: amountOutMin,
+            stableAmount: stableAmount,
+            refundRecipient: refundRecipient,
+            timestamp: block.timestamp,
+            executed: false
+        });
+
+        emit SwapInstructionsReceived(swapId, recipient, destinationToken, stableAmount, amountOutMin);
+
+        // Execute the swap immediately (we have gas from the message)
+        _executeSwap(swapId, _origin.srcEid);
+    }
+
+    /**
+     * @notice Execute a pending swap
+     * @param swapId The unique swap identifier
+     * @param sourceEid The source endpoint ID
+     */
+    function _executeSwap(bytes32 swapId, uint32 sourceEid) internal {
+        PendingSwap storage swap = pendingSwaps[swapId];
+        require(!swap.executed, "Swap already executed");
+        require(swap.stableAmount > 0, "Invalid swap");
+
+        // Mark as executed first to prevent reentrancy
+        swap.executed = true;
+
         uint256 stablecoinBalance = IERC20(stablecoin).balanceOf(address(this));
-        require(stablecoinBalance >= stableAmount, "Insufficient stablecoins received");
+        
+        if (stablecoinBalance < swap.stableAmount) {
+            // Not enough stablecoins, refund will happen when stablecoins arrive
+            emit SwapFailed(swapId, swap.recipient, swap.stableAmount, "Insufficient stablecoins - will retry");
+            swap.executed = false; // Allow retry
+            return;
+        }
 
-        // Approve the DEX router to spend the stablecoins
+        try this._performSwap(swap.stableAmount, swap.amountOutMin, swap.destinationToken, swap.recipient) returns (uint256 amountOut) {
+            emit CrossChainSwapCompleted(
+                sourceEid,
+                swap.recipient,
+                swap.destinationToken,
+                swap.stableAmount,
+                amountOut
+            );
+        } catch Error(string memory reason) {
+            emit SwapFailed(swapId, swap.recipient, swap.stableAmount, reason);
+            
+            // Refund stablecoins to recipient if swap fails
+            IERC20(stablecoin).transfer(bytes32ToAddress(swap.recipient), swap.stableAmount);
+        } catch {
+            emit SwapFailed(swapId, swap.recipient, swap.stableAmount, "Unknown error");
+            
+            // Refund stablecoins to recipient if swap fails
+            IERC20(stablecoin).transfer(bytes32ToAddress(swap.recipient), swap.stableAmount);
+        }
+    }
+
+    /**
+     * @notice Perform the actual DEX swap (external for try/catch)
+     */
+    function _performSwap(
+        uint256 stableAmount,
+        uint256 amountOutMin,
+        bytes32 destinationToken,
+        bytes32 recipient
+    ) external returns (uint256 amountOut) {
+        require(msg.sender == address(this), "Only self");
+
+        // Approve the DEX router to spend stablecoins
         IERC20(stablecoin).approve(address(dexRouter), stableAmount);
 
         // Perform the swap on the destination chain
@@ -160,16 +237,19 @@ contract CrossChainRouter is OApp, CrossChainOptionsType3 {
             block.timestamp + 1200 // 20 minutes deadline
         );
 
-        emit CrossChainSwapCompleted(
-            recipient,
-            destinationToken,
-            stableAmount,
-            amounts[amounts.length - 1]
-        );
+        return amounts[amounts.length - 1];
     }
 
     /**
-     * @notice Initiates a cross-chain swap using LayerZero Compose
+     * @notice Manually execute a pending swap (in case automatic execution failed)
+     * @param swapId The unique swap identifier
+     */
+    function executeSwap(bytes32 swapId) external {
+        _executeSwap(swapId, 0);
+    }
+
+    /**
+     * @notice Initiates a complete cross-chain swap
      * @param _destinationEid The LayerZero endpoint ID for the destination chain
      * @param _recipient The recipient address on the destination chain (as bytes32)
      * @param _sourceToken The token to swap on the source chain
@@ -205,24 +285,35 @@ contract CrossChainRouter is OApp, CrossChainOptionsType3 {
             0, // No minimum for the intermediate swap
             path,
             address(this),
-            block.timestamp + 1200 // 20 minutes deadline
+            block.timestamp + 1200
         );
 
         uint256 stableAmount = amounts[amounts.length - 1];
 
-        // 3. Prepare compose message with swap instructions
-        bytes memory composeMsg = abi.encode(
+        // 3. Bridge stablecoins to destination chain using OFT
+        _bridgeStablecoins(_destinationEid, stableAmount, _options);
+
+        // 4. Send swap instructions to destination chain (with gas for execution)
+        bytes memory payload = abi.encode(
             _recipient,
             _destinationToken,
-            _amountOutMin
+            _amountOutMin,
+            stableAmount,
+            msg.sender // refund recipient
         );
 
-        // 4. Send stablecoins with compose message using OFT
-        _sendWithCompose(
+        bytes memory combinedOptions = combineOptions(_destinationEid, SWAP, _options);
+
+        // Calculate messaging fee
+        MessagingFee memory msgFee = _quote(_destinationEid, payload, combinedOptions, false);
+        require(msg.value >= msgFee.nativeFee, "Insufficient fee provided");
+
+        _lzSend(
             _destinationEid,
-            stableAmount,
-            composeMsg,
-            _options
+            payload,
+            combinedOptions,
+            MessagingFee(msg.value, 0),
+            payable(msg.sender)
         );
 
         emit CrossChainSwapInitiated(
@@ -238,55 +329,50 @@ contract CrossChainRouter is OApp, CrossChainOptionsType3 {
     }
 
     /**
-     * @notice Sends stablecoins with compose message using OFT
+     * @notice Bridge stablecoins to destination chain using OFT
      * @param _destinationEid The destination chain endpoint ID
-     * @param _amount The amount of stablecoins to send
-     * @param _composeMsg The compose message with swap instructions
-     * @param _options LayerZero options
+     * @param _amount The amount of stablecoins to bridge
+     * @param _options LayerZero options for the bridge transaction
      */
-    function _sendWithCompose(
+    function _bridgeStablecoins(
         uint32 _destinationEid,
         uint256 _amount,
-        bytes memory _composeMsg,
         bytes calldata _options
     ) internal {
         // Approve the OFT contract to spend stablecoins
         IERC20(stablecoin).approve(address(stablecoinOFT), _amount);
 
-        // Prepare SendParam with compose message
+        // FIXED: Allow 0.5% slippage for OFT fees
+        uint256 minAmountAfterFee = _amount * 995 / 1000; // 0.5% slippage tolerance
         SendParam memory sendParam = SendParam({
             dstEid: _destinationEid,
-            to: addressToBytes32(address(this)), // Send to this contract on destination
+            to: addressToBytes32(address(this)),
             amountLD: _amount,
-            minAmountLD: _amount, // No slippage for stablecoin bridge
+            minAmountLD: minAmountAfterFee, // Allow slippage for OFT fees
             extraOptions: _options,
-            composeMsg: _composeMsg, // This triggers lzCompose on destination
+            composeMsg: "",
             oftCmd: ""
         });
 
-        // Get quote for OFT sending with compose
-        MessagingFee memory oftFee = stablecoinOFT.quoteSend(sendParam, false);
+        // Get OFT quote and bridge
+        MessagingFee memory bridgeFee = stablecoinOFT.quoteSend(sendParam, false);
         
-        // Ensure sufficient fee provided
-        require(msg.value >= oftFee.nativeFee, "Insufficient fee for OFT send");
-
-        // Send the stablecoins with compose message
-        stablecoinOFT.send{value: oftFee.nativeFee}(
+        stablecoinOFT.send{value: bridgeFee.nativeFee}(
             sendParam,
-            oftFee,
-            payable(msg.sender) // Refund to original sender
+            bridgeFee,
+            payable(address(this))
         );
     }
 
     /**
-     * @notice Quotes the fee for a cross-chain swap using compose
-     * @param _destinationEid The LayerZero endpoint ID for the destination chain
-     * @param _recipient The recipient address on the destination chain (as bytes32)
-     * @param _destinationToken The token to receive on the destination chain (as bytes32)
-     * @param _amountOutMin The minimum amount of destination tokens to receive
-     * @param _stableAmount The amount of stablecoins to send
-     * @param _options Additional options for the LayerZero message
-     * @return fee The messaging fee required for the cross-chain swap
+     * @notice Quote total fees for cross-chain swap (OFT bridge + messaging with gas)
+     * @param _destinationEid The destination endpoint ID
+     * @param _recipient The recipient address
+     * @param _destinationToken The destination token
+     * @param _amountOutMin Minimum output amount
+     * @param _stableAmount Amount of stablecoins to bridge
+     * @param _options LayerZero options
+     * @return totalFee The total fee required
      */
     function quoteSwapFee(
         uint32 _destinationEid,
@@ -295,40 +381,72 @@ contract CrossChainRouter is OApp, CrossChainOptionsType3 {
         uint256 _amountOutMin,
         uint256 _stableAmount,
         bytes calldata _options
-    ) external view returns (MessagingFee memory fee) {
-        // Prepare compose message
-        bytes memory composeMsg = abi.encode(
-            _recipient,
-            _destinationToken,
-            _amountOutMin
-        );
-
-        // Prepare SendParam
+    ) external view returns (MessagingFee memory totalFee) {
+        // Quote for bridging stablecoins with error handling
+        // FIXED: Allow 0.5% slippage for OFT fees
+        uint256 minAmountAfterFee = _stableAmount * 995 / 1000; // 0.5% slippage tolerance
         SendParam memory sendParam = SendParam({
             dstEid: _destinationEid,
             to: addressToBytes32(address(this)),
             amountLD: _stableAmount,
-            minAmountLD: _stableAmount,
+            minAmountLD: minAmountAfterFee, // Allow slippage for OFT fees
             extraOptions: _options,
-            composeMsg: composeMsg,
+            composeMsg: "",
             oftCmd: ""
         });
+        
+        // FIXED: Add try-catch for better error handling
+        MessagingFee memory bridgeFee;
+        try stablecoinOFT.quoteSend(sendParam, false) returns (MessagingFee memory fee) {
+            bridgeFee = fee;
+        } catch {
+            // If OFT quote fails, use conservative estimate
+            bridgeFee.nativeFee = 0.02 ether; // 0.02 ETH estimate
+            bridgeFee.lzTokenFee = 0;
+        }
 
-        // Return OFT quote (includes compose execution)
-        return stablecoinOFT.quoteSend(sendParam, false);
+        // Quote for swap instruction message (includes destination execution gas)
+        bytes memory payload = abi.encode(_recipient, _destinationToken, _amountOutMin, _stableAmount, address(0));
+        bytes memory combinedOptions = combineOptions(_destinationEid, SWAP, _options);
+        
+        MessagingFee memory swapFee;
+        try this.quote(_destinationEid, payload, combinedOptions, false) returns (MessagingFee memory fee) {
+            swapFee = fee;
+        } catch {
+            // If message quote fails, use conservative estimate
+            swapFee.nativeFee = 0.03 ether; // 0.03 ETH estimate for message + gas
+            swapFee.lzTokenFee = 0;
+        }
+
+        // Return combined fee
+        totalFee.nativeFee = bridgeFee.nativeFee + swapFee.nativeFee;
+        totalFee.lzTokenFee = bridgeFee.lzTokenFee + swapFee.lzTokenFee;
+    }
+
+    /**
+     * @notice Public wrapper for the internal _quote function for external access
+     * @param _dstEid Destination endpoint ID
+     * @param _message Message payload
+     * @param _options LayerZero options
+     * @param _payInLzToken Whether to pay in LZ token
+     * @return fee The messaging fee
+     */
+    function quote(
+        uint32 _dstEid,
+        bytes memory _message,
+        bytes memory _options,
+        bool _payInLzToken
+    ) external view returns (MessagingFee memory fee) {
+        return _quote(_dstEid, _message, _options, _payInLzToken);
     }
 
     /**
      * @notice Estimates the output amount for a cross-chain swap
-     * @param _sourceToken The token to swap on the source chain
-     * @param _amountIn The amount of source tokens to swap
-     * @return sourceStableAmount The estimated amount of stablecoin after source swap
      */
     function estimateSwapOutput(
         address _sourceToken,
         uint256 _amountIn
     ) external view returns (uint256 sourceStableAmount) {
-        // Estimate source chain swap: sourceToken -> stablecoin
         address[] memory sourcePath = new address[](2);
         sourcePath[0] = _sourceToken;
         sourcePath[1] = stablecoin;
@@ -338,50 +456,37 @@ contract CrossChainRouter is OApp, CrossChainOptionsType3 {
     }
 
     /**
-     * @notice Helper function to convert bytes32 to an address
-     * @param _buf The bytes32 value to convert
-     * @return The converted address
+     * @notice Estimates the destination token output for a given stablecoin amount
      */
+    function estimateDestinationOutput(
+        bytes32 _destinationToken,
+        uint256 _stableAmount
+    ) external view returns (uint256 destTokenAmount) {
+        address[] memory destPath = new address[](2);
+        destPath[0] = stablecoin;
+        destPath[1] = bytes32ToAddress(_destinationToken);
+
+        uint[] memory destAmounts = dexRouter.getAmountsOut(_stableAmount, destPath);
+        destTokenAmount = destAmounts[destAmounts.length - 1];
+    }
+
+    // Helper functions
     function bytes32ToAddress(bytes32 _buf) internal pure returns (address) {
         return address(uint160(uint256(_buf)));
     }
 
-    /**
-     * @notice Helper function to convert an address to bytes32
-     * @param _addr The address to convert
-     * @return The converted bytes32 value
-     */
     function addressToBytes32(address _addr) public pure returns (bytes32) {
         return bytes32(uint256(uint160(_addr)));
     }
 
-    /**
-     * @notice Allows the owner to withdraw any tokens from this contract
-     * @param _token The token to withdraw
-     * @param _to The recipient address
-     * @param _amount The amount to withdraw
-     */
-    function withdrawToken(
-        IERC20 _token,
-        address _to,
-        uint256 _amount
-    ) external {
-        require(msg.sender == owner(), "Only owner");
-        require(_token.transfer(_to, _amount), "Transfer failed");
+    // Emergency functions
+    function withdrawToken(IERC20 _token, address _to, uint256 _amount) external onlyOwner {
+        _token.transfer(_to, _amount);
     }
 
-    /**
-     * @notice Allows the owner to withdraw native currency from this contract
-     * @param _to The recipient address
-     * @param _amount The amount to withdraw
-     */
-    function withdrawNative(address payable _to, uint256 _amount) external {
-        require(msg.sender == owner(), "Only owner");
+    function withdrawNative(address payable _to, uint256 _amount) external onlyOwner {
         _to.transfer(_amount);
     }
 
-    /**
-     * @notice Fallback function to receive native currency
-     */
     receive() external payable {}
 }
