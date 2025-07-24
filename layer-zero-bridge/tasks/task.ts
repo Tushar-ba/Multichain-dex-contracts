@@ -5,56 +5,56 @@ import { EndpointId } from '@layerzerolabs/lz-definitions';
 const NETWORK_CONFIG: Record<string, any> = {
   'avalanche-fuji-testnet': {
     eid: EndpointId.AVALANCHE_V2_TESTNET,
-    CustomStablecoinOFT: '0x79F5bba2fa86D631fEd5F87211b0619a2635A167', 
-    CrossChainRouter: '0x095Cd2f67F3b932a18f39eBC48bF5E7ef263BcAA', 
+    CustomStablecoinOFT: '0xe8769Bef685d789C0d74884fBEc46FC7ee734EeA', 
+    CrossChainRouter: '0x130196E5410A83Ca32208bca8f10a347786BF3e7', 
     Endpoint: '0x6EDCE65403992e310A62460808c4b910D972f10f',
     Router: '0x011b561002A1D2522210BA3d687131AB1F6AcF79',
     TokenB: '0x1963f6163D9eaFCb1aF6DB7207b21E8aD6548751'
   },
   'arbitrum-sepolia-testnet': {
     eid: EndpointId.ARBSEP_V2_TESTNET,
-    CustomStablecoinOFT: '0x47F655BeE339Eb0ae8c51a7aa827055811b1C344', 
-    CrossChainRouter: '0xD96d3eC1d7eF8f49F8966E88d5F3E80E71BED6Ba', 
+    CustomStablecoinOFT: '0xBE4fFD224eB2Cc79F99476b964EA5495144A9E44', 
+    CrossChainRouter: '0xbA4f94927E467cE3Feca8eDc6A5196B4C93cf825', 
     Endpoint: '0x6EDCE65403992e310A62460808c4b910D972f10f',
     Router: '0xA9a558fB3269F307eE57270b41fcBaFFC56d5290',
     TokenA: '0x9340DA78eC04aD53CFbD6970D7F6C2A0a33cD42a'
   },
   // Additional networks for better coverage (update addresses when deployed)
-  'ethereum-sepolia': {
-    eid: EndpointId.SEPOLIA_V2_TESTNET,
-    CustomStablecoinOFT: '0x0000000000000000000000000000000000000000', // Update when deployed
-    CrossChainRouter: '0x0000000000000000000000000000000000000000', // Update when deployed
-    Endpoint: '0x6EDCE65403992e310A62460808c4b910D972f10f',
-    Router: '0xC235d41016435B1034aeC94f9de17a78d9dA7028'
-  },
-  'optimism-sepolia-testnet': {
-    eid: EndpointId.OPTSEP_V2_TESTNET,
-    CustomStablecoinOFT: '0x0000000000000000000000000000000000000000', // Update when deployed
-    CrossChainRouter: '0x0000000000000000000000000000000000000000', // Update when deployed
-    Endpoint: '0x6EDCE65403992e310A62460808c4b910D972f10f',
-    Router: '0x3DfCfA2730f768cf4cf931f4896109ffa9c3e202'
-  },
-  'bsc-testnet': {
-    eid: EndpointId.BSC_V2_TESTNET,
-    CustomStablecoinOFT: '0x0000000000000000000000000000000000000000', // Update when deployed
-    CrossChainRouter: '0x0000000000000000000000000000000000000000', // Update when deployed
-    Endpoint: '0x6EDCE65403992e310A62460808c4b910D972f10f',
-    Router: '0x78069aF1280A73D240cCDF16Ab4a483555246665'
-  },
-  'base-sepolia': {
-    eid: EndpointId.BASESEP_V2_TESTNET,
-    CustomStablecoinOFT: '0x0000000000000000000000000000000000000000', // Update when deployed
-    CrossChainRouter: '0x0000000000000000000000000000000000000000', // Update when deployed
-    Endpoint: '0x6EDCE65403992e310A62460808c4b910D972f10f',
-    Router: '0xC3b415C823366DC2222d979b0a17ce9C72A4feEB'
-  },
-  'polygon-amoy': {
-    eid: EndpointId.AMOY_V2_TESTNET,
-    CustomStablecoinOFT: '0x0000000000000000000000000000000000000000', // Update when deployed
-    CrossChainRouter: '0x0000000000000000000000000000000000000000', // Update when deployed
-    Endpoint: '0x6EDCE65403992e310A62460808c4b910D972f10f',
-    Router: '0xa5812cE58B6Cb897b9B02ED1bAA1f9AC01D4F67e'
-  }
+  // 'ethereum-sepolia': {
+  //   eid: EndpointId.SEPOLIA_V2_TESTNET,
+  //   CustomStablecoinOFT: '0x0000000000000000000000000000000000000000', // Update when deployed
+  //   CrossChainRouter: '0x0000000000000000000000000000000000000000', // Update when deployed
+  //   Endpoint: '0x6EDCE65403992e310A62460808c4b910D972f10f',
+  //   Router: '0xC235d41016435B1034aeC94f9de17a78d9dA7028'
+  // },
+  // 'optimism-sepolia-testnet': {
+  //   eid: EndpointId.OPTSEP_V2_TESTNET,
+  //   CustomStablecoinOFT: '0x0000000000000000000000000000000000000000', // Update when deployed
+  //   CrossChainRouter: '0x0000000000000000000000000000000000000000', // Update when deployed
+  //   Endpoint: '0x6EDCE65403992e310A62460808c4b910D972f10f',
+  //   Router: '0x3DfCfA2730f768cf4cf931f4896109ffa9c3e202'
+  // },
+  // 'bsc-testnet': {
+  //   eid: EndpointId.BSC_V2_TESTNET,
+  //   CustomStablecoinOFT: '0x0000000000000000000000000000000000000000', // Update when deployed
+  //   CrossChainRouter: '0x0000000000000000000000000000000000000000', // Update when deployed
+  //   Endpoint: '0x6EDCE65403992e310A62460808c4b910D972f10f',
+  //   Router: '0x78069aF1280A73D240cCDF16Ab4a483555246665'
+  // },
+  // 'base-sepolia': {
+  //   eid: EndpointId.BASESEP_V2_TESTNET,
+  //   CustomStablecoinOFT: '0x0000000000000000000000000000000000000000', // Update when deployed
+  //   CrossChainRouter: '0x0000000000000000000000000000000000000000', // Update when deployed
+  //   Endpoint: '0x6EDCE65403992e310A62460808c4b910D972f10f',
+  //   Router: '0xC3b415C823366DC2222d979b0a17ce9C72A4feEB'
+  // },
+  // 'polygon-amoy': {
+  //   eid: EndpointId.AMOY_V2_TESTNET,
+  //   CustomStablecoinOFT: '0x0000000000000000000000000000000000000000', // Update when deployed
+  //   CrossChainRouter: '0x0000000000000000000000000000000000000000', // Update when deployed
+  //   Endpoint: '0x6EDCE65403992e310A62460808c4b910D972f10f',
+  //   Router: '0xa5812cE58B6Cb897b9B02ED1bAA1f9AC01D4F67e'
+  // }
 };
 
 // Complete cross-chain swap task (SourceToken → DestinationToken)
@@ -332,73 +332,73 @@ task("quote-cross-chain-fee", "Quote fees for complete cross-chain swap")
 
       // Step 4: Try individual quote components
       console.log("\n💰 Step 4: Individual Fee Components");
-      
-      try {
-        // Quote OFT bridge fee separately
-        console.log("🌉 Quoting OFT Bridge Fee...");
-        const StablecoinOFT = await hre.ethers.getContractAt("IOFT", sourceConfig.CustomStablecoinOFT);
-        
-        const sendParam = {
-          dstEid: destConfig.eid,
-          to: recipientBytes32, // Use the CrossChainRouter address on destination
-          amountLD: estimatedStableAmount,
-          minAmountLD: estimatedStableAmount,
-          extraOptions: options,
-          composeMsg: "0x",
-          oftCmd: "0x"
-        };
 
-        const bridgeFee = await StablecoinOFT.quoteSend(sendParam, false);
-        console.log(`✅ Bridge Fee: ${hre.ethers.utils.formatEther(bridgeFee.nativeFee)} ETH`);
-        console.log(`   LZ Token Fee: ${hre.ethers.utils.formatEther(bridgeFee.lzTokenFee)}`);
+try {
+  // Quote OFT bridge fee separately
+  console.log("🌉 Quoting OFT Bridge Fee...");
+  const StablecoinOFT = await hre.ethers.getContractAt("IOFT", sourceConfig.CustomStablecoinOFT);
+  
+  // FIXED: Apply 5% slippage and use correct destination address
+  const minAmountAfterFee = estimatedStableAmount.mul(950).div(1000); // 5% slippage
+  const sendParam = {
+    dstEid: destConfig.eid,
+    to: hre.ethers.utils.hexZeroPad(destConfig.CrossChainRouter, 32), // CrossChainRouter on destination
+    amountLD: estimatedStableAmount,
+    minAmountLD: minAmountAfterFee, // Apply slippage tolerance
+    extraOptions: options,
+    composeMsg: "0x",
+    oftCmd: "0x"
+  };
 
-        // Quote message fee separately
-        console.log("\n📨 Quoting Message Fee...");
-        const payload = hre.ethers.utils.defaultAbiCoder.encode(
-          ["bytes32", "bytes32", "uint256", "uint256", "address"],
-          [recipientBytes32, destinationTokenBytes32, amountOutMinWei, estimatedStableAmount, recipient]
-        );
-        
-        // Try to get message fee using internal _quote function
-        // This might fail because _quote is internal, but let's try
-        try {
-          const msgFee = await CrossChainRouter.quote(destConfig.eid, payload, options, false);
-          console.log(`✅ Message Fee: ${hre.ethers.utils.formatEther(msgFee.nativeFee)} ETH`);
-          
-          // Calculate total
-          const totalNativeFee = bridgeFee.nativeFee.add(msgFee.nativeFee);
-          const totalLZTokenFee = bridgeFee.lzTokenFee.add(msgFee.lzTokenFee);
-          
-          console.log("\n🎯 === TOTAL FEE BREAKDOWN ===");
-          console.log(`Bridge Fee: ${hre.ethers.utils.formatEther(bridgeFee.nativeFee)} ETH`);
-          console.log(`Message Fee: ${hre.ethers.utils.formatEther(msgFee.nativeFee)} ETH`);
-          console.log(`Total Native Fee: ${hre.ethers.utils.formatEther(totalNativeFee)} ETH`);
-          console.log(`Total LZ Token Fee: ${hre.ethers.utils.formatEther(totalLZTokenFee)}`);
-          console.log(`Recommended (with 15% buffer): ${hre.ethers.utils.formatEther(totalNativeFee.mul(115).div(100))} ETH`);
-          
-        } catch (quoteError: any) {
-          console.log(`⚠️  Could not quote message fee directly: ${quoteError.message}`);
-          
-          // Provide estimate based on bridge fee
-          const estimatedTotal = bridgeFee.nativeFee.mul(2); // Rough estimate
-          console.log("\n🎯 === ESTIMATED TOTAL FEE ===");
-          console.log(`Bridge Fee: ${hre.ethers.utils.formatEther(bridgeFee.nativeFee)} ETH`);
-          console.log(`Estimated Message Fee: ~${hre.ethers.utils.formatEther(bridgeFee.nativeFee)} ETH`);
-          console.log(`Estimated Total: ~${hre.ethers.utils.formatEther(estimatedTotal)} ETH`);
-          console.log(`Recommended (with buffer): ${hre.ethers.utils.formatEther(estimatedTotal.mul(130).div(100))} ETH`);
-        }
+  const bridgeFee = await StablecoinOFT.quoteSend(sendParam, false);
+  console.log(`✅ Bridge Fee: ${hre.ethers.utils.formatEther(bridgeFee.nativeFee)} ETH`);
+  console.log(`   LZ Token Fee: ${hre.ethers.utils.formatEther(bridgeFee.lzTokenFee)}`);
 
-      } catch (oftError: any) {
-        console.log(`❌ Could not quote bridge fee: ${oftError.message}`);
-        
-        // Provide general estimates
-        console.log("\n💡 === GENERAL FEE ESTIMATES ===");
-        console.log("Cross-chain swap fees typically include:");
-        console.log("  - OFT Bridge Fee: 0.01-0.05 ETH");
-        console.log("  - Message + Gas Fee: 0.01-0.05 ETH");
-        console.log("  - Total Estimate: 0.02-0.1 ETH");
-        console.log("  - Recommended: 0.08-0.12 ETH (with buffer)");
-      }
+  // Quote message fee separately
+  console.log("\n📨 Quoting Message Fee...");
+  const payload = hre.ethers.utils.defaultAbiCoder.encode(
+    ["bytes32", "bytes32", "uint256", "uint256", "address"],
+    [recipientBytes32, destinationTokenBytes32, amountOutMinWei, estimatedStableAmount, recipient]
+  );
+  
+  try {
+    const msgFee = await CrossChainRouter.quote(destConfig.eid, payload, options, false);
+    console.log(`✅ Message Fee: ${hre.ethers.utils.formatEther(msgFee.nativeFee)} ETH`);
+    
+    // Calculate total
+    const totalNativeFee = bridgeFee.nativeFee.add(msgFee.nativeFee);
+    const totalLZTokenFee = bridgeFee.lzTokenFee.add(msgFee.lzTokenFee);
+    
+    console.log("\n🎯 === TOTAL FEE BREAKDOWN ===");
+    console.log(`Bridge Fee: ${hre.ethers.utils.formatEther(bridgeFee.nativeFee)} ETH`);
+    console.log(`Message Fee: ${hre.ethers.utils.formatEther(msgFee.nativeFee)} ETH`);
+    console.log(`Total Native Fee: ${hre.ethers.utils.formatEther(totalNativeFee)} ETH`);
+    console.log(`Total LZ Token Fee: ${hre.ethers.utils.formatEther(totalLZTokenFee)}`);
+    console.log(`Recommended (with 15% buffer): ${hre.ethers.utils.formatEther(totalNativeFee.mul(115).div(100))} ETH`);
+    
+  } catch (quoteError: any) {
+    console.log(`⚠️  Could not quote message fee directly: ${quoteError.message}`);
+    
+    // Provide estimate based on bridge fee
+    const estimatedTotal = bridgeFee.nativeFee.mul(2); // Rough estimate
+    console.log("\n🎯 === ESTIMATED TOTAL FEE ===");
+    console.log(`Bridge Fee: ${hre.ethers.utils.formatEther(bridgeFee.nativeFee)} ETH`);
+    console.log(`Estimated Message Fee: ~${hre.ethers.utils.formatEther(bridgeFee.nativeFee)} ETH`);
+    console.log(`Estimated Total: ~${hre.ethers.utils.formatEther(estimatedTotal)} ETH`);
+    console.log(`Recommended (with buffer): ${hre.ethers.utils.formatEther(estimatedTotal.mul(130).div(100))} ETH`);
+  }
+
+} catch (oftError: any) {
+  console.log(`❌ Could not quote bridge fee: ${oftError.message}`);
+  
+  // Provide general estimates
+  console.log("\n💡 === GENERAL FEE ESTIMATES ===");
+  console.log("Cross-chain swap fees typically include:");
+  console.log("  - OFT Bridge Fee: 0.01-0.05 ETH");
+  console.log("  - Message + Gas Fee: 0.01-0.05 ETH");  
+  console.log("  - Total Estimate: 0.02-0.1 ETH");
+  console.log("  - Recommended: 0.08-0.12 ETH (with buffer)");
+}
 
       // Step 5: Try the original quoteSwapFee function
       console.log("\n🔧 Step 5: Testing Original quoteSwapFee Function");
@@ -478,6 +478,285 @@ task("quote-cross-chain-fee", "Quote fees for complete cross-chain swap")
       throw error;
     }
   });
+
+// Add this task to debug each step individually:
+
+task("debug-step-by-step", "Debug cross-chain swap step by step")
+  .addParam("sourceNetwork", "Source network name")
+  .addParam("destinationNetwork", "Destination network name")
+  .addParam("sourceToken", "Source token address") 
+  .addParam("destinationToken", "Destination token address")
+  .addParam("amountIn", "Amount of source tokens to swap")
+  .setAction(async (taskArgs: any, hre: any) => {
+    const { sourceNetwork, destinationNetwork, sourceToken, destinationToken, amountIn } = taskArgs;
+    
+    console.log("🔬 === STEP-BY-STEP DEBUG ===");
+    
+    const sourceConfig = NETWORK_CONFIG[sourceNetwork];
+    const destConfig = NETWORK_CONFIG[destinationNetwork];
+    const [signer] = await hre.ethers.getSigners();
+    
+    const CrossChainRouter = await hre.ethers.getContractAt("CrossChainRouter", sourceConfig.CrossChainRouter);
+    const SourceToken = await hre.ethers.getContractAt("@openzeppelin/contracts/token/ERC20/IERC20.sol:IERC20", sourceToken);
+    
+    const amountInWei = hre.ethers.utils.parseEther(amountIn);
+    const amountOutMinWei = hre.ethers.utils.parseEther("0.9"); // 90% of input
+    const recipientBytes32 = hre.ethers.utils.hexZeroPad(signer.address, 32);
+    const destinationTokenBytes32 = hre.ethers.utils.hexZeroPad(destinationToken, 32);
+    const options = "0x";
+    
+    try {
+      // Step 1: Test the internal source swap only
+      console.log("\n🧪 STEP 1: Testing Source Swap Only");
+      console.log("This will test: Source Token → Stablecoin conversion");
+      
+      const DexRouter = await hre.ethers.getContractAt("contracts/CrossChainRouter.sol:IPayfundsRouter02", sourceConfig.Router);
+      const stablecoinAddr = await CrossChainRouter.stablecoin();
+      
+      // Approve DEX router directly
+      const currentAllowance = await SourceToken.allowance(signer.address, sourceConfig.Router);
+      if (currentAllowance.lt(amountInWei)) {
+        console.log("⏳ Approving DEX router...");
+        const approveTx = await SourceToken.approve(sourceConfig.Router, amountInWei);
+        await approveTx.wait();
+        console.log("✅ DEX router approved");
+      }
+      
+      // Test direct DEX swap
+      const path = [sourceToken, stablecoinAddr];
+      const amountsOut = await DexRouter.getAmountsOut(amountInWei, path);
+      console.log(`Expected stablecoin output: ${hre.ethers.utils.formatEther(amountsOut[1])}`);
+      
+      // Try actual DEX swap (small amount for testing)
+      const testAmount = hre.ethers.utils.parseEther("0.01"); // 0.01 tokens
+      try {
+        console.log("⏳ Testing small DEX swap...");
+        const swapTx = await DexRouter.swapExactTokensForTokens(
+          testAmount,
+          0, // No minimum for test
+          path,
+          signer.address,
+          Math.floor(Date.now() / 1000) + 1200, // 20 minutes
+          { gasLimit: 300000 }
+        );
+        await swapTx.wait();
+        console.log("✅ Direct DEX swap successful!");
+      } catch (swapError: any) {
+        console.log(`❌ Direct DEX swap failed: ${swapError.message}`);
+        return;
+      }
+      
+      // Step 2: Test LayerZero components individually  
+      console.log("\n🧪 STEP 2: Testing LayerZero Components");
+      
+      // Test OFT send capability
+      const StablecoinOFT = await hre.ethers.getContractAt("CustomStablecoinOFT", sourceConfig.CustomStablecoinOFT);
+      const oftBalance = await StablecoinOFT.balanceOf(signer.address);
+      console.log(`Your stablecoin balance: ${hre.ethers.utils.formatEther(oftBalance)}`);
+      
+      if (oftBalance.gt(hre.ethers.utils.parseEther("0.1"))) {
+        console.log("⏳ Testing small OFT send...");
+        
+        const sendAmount = hre.ethers.utils.parseEther("0.01");
+        const minAmount = sendAmount.mul(950).div(1000); // 5% slippage
+        
+        const sendParam = {
+          dstEid: destConfig.eid,
+          to: hre.ethers.utils.hexZeroPad(signer.address, 32),
+          amountLD: sendAmount,
+          minAmountLD: minAmount,
+          extraOptions: "0x",
+          composeMsg: "0x",
+          oftCmd: "0x"
+        };
+        
+        try {
+          const quote = await StablecoinOFT.quoteSend(sendParam, false);
+          console.log(`OFT send quote: ${hre.ethers.utils.formatEther(quote.nativeFee)} ETH`);
+          
+          // Try actual send
+          const sendTx = await StablecoinOFT.send(
+            sendParam,
+            { nativeFee: quote.nativeFee, lzTokenFee: 0 },
+            signer.address,
+            { value: quote.nativeFee, gasLimit: 500000 }
+          );
+          await sendTx.wait();
+          console.log("✅ OFT send successful!");
+          
+        } catch (oftSendError: any) {
+          console.log(`❌ OFT send failed: ${oftSendError.message}`);
+        }
+      } else {
+        console.log("⚠️ Not enough stablecoin balance for OFT test");
+      }
+      
+      // Step 3: Test CrossChainRouter message sending
+      console.log("\n🧪 STEP 3: Testing CrossChainRouter Message");
+      
+      const payload = hre.ethers.utils.defaultAbiCoder.encode(
+        ["bytes32", "bytes32", "uint256", "uint256", "address"],
+        [recipientBytes32, destinationTokenBytes32, amountOutMinWei, amountInWei, signer.address]
+      );
+      
+      try {
+        const msgFee = await CrossChainRouter.quote(destConfig.eid, payload, options, false);
+        console.log(`Message fee quote: ${hre.ethers.utils.formatEther(msgFee.nativeFee)} ETH`);
+        console.log("✅ CrossChainRouter message quote successful!");
+      } catch (msgError: any) {
+        console.log(`❌ CrossChainRouter message quote failed: ${msgError.message}`);
+        
+        // This might be the issue - let's try to configure LayerZero
+        console.log("\n💡 POSSIBLE SOLUTION:");
+        console.log("The CrossChainRouter needs LayerZero configuration. Try:");
+        console.log("1. npx hardhat lz:oapp:config:init --oapp-config layerzero.config.ts --network arbitrum-sepolia-testnet");
+        console.log("2. npx hardhat lz:oapp:config:init --oapp-config layerzero.config.ts --network avalanche-fuji-testnet");
+      }
+      
+    } catch (error: any) {
+      console.error(`❌ Step-by-step debug failed: ${error.message}`);
+    }
+  });
+
+  // Add this task to test each function call individually:
+
+task("granular-debug", "Test each cross-chain swap function individually")
+.addParam("sourceNetwork", "Source network name")
+.addParam("destinationNetwork", "Destination network name")
+.addParam("sourceToken", "Source token address")
+.addParam("destinationToken", "Destination token address")
+.setAction(async (taskArgs: any, hre: any) => {
+  const { sourceNetwork, destinationNetwork, sourceToken, destinationToken } = taskArgs;
+  
+  console.log("🔬 === GRANULAR FUNCTION DEBUG ===");
+  
+  const sourceConfig = NETWORK_CONFIG[sourceNetwork];
+  const destConfig = NETWORK_CONFIG[destinationNetwork];
+  const [signer] = await hre.ethers.getSigners();
+  
+  const CrossChainRouter = await hre.ethers.getContractAt("CrossChainRouter", sourceConfig.CrossChainRouter);
+  const SourceToken = await hre.ethers.getContractAt("@openzeppelin/contracts/token/ERC20/IERC20.sol:IERC20", sourceToken);
+  
+  const amountInWei = hre.ethers.utils.parseEther("1");
+  const amountOutMinWei = hre.ethers.utils.parseEther("0.9");
+  const recipientBytes32 = hre.ethers.utils.hexZeroPad(signer.address, 32);
+  const destinationTokenBytes32 = hre.ethers.utils.hexZeroPad(destinationToken, 32);
+  const options = "0x";
+  
+  try {
+    console.log("\n🧪 TEST 1: Basic Contract Calls");
+    
+    // Test 1: Basic getters (these should always work)
+    const stablecoin = await CrossChainRouter.stablecoin();
+    const stablecoinOFT = await CrossChainRouter.stablecoinOFT();
+    const dexRouter = await CrossChainRouter.dexRouter();
+    console.log(`✅ Stablecoin: ${stablecoin}`);
+    console.log(`✅ StablecoinOFT: ${stablecoinOFT}`);
+    console.log(`✅ DEX Router: ${dexRouter}`);
+    
+    // Test 2: Estimate swap output (read-only)
+    console.log("\n🧪 TEST 2: Estimate Swap Output");
+    const estimatedOutput = await CrossChainRouter.estimateSwapOutput(sourceToken, amountInWei);
+    console.log(`✅ Estimated output: ${hre.ethers.utils.formatEther(estimatedOutput)}`);
+    
+    // Test 3: Quote swap fee (this was failing before)
+    console.log("\n🧪 TEST 3: Quote Swap Fee");
+    try {
+      const totalFee = await CrossChainRouter.quoteSwapFee(
+        destConfig.eid,
+        recipientBytes32,
+        destinationTokenBytes32,
+        amountOutMinWei,
+        estimatedOutput,
+        options
+      );
+      console.log(`✅ Total fee quote: ${hre.ethers.utils.formatEther(totalFee.nativeFee)} ETH`);
+    } catch (feeError: any) {
+      console.log(`❌ Fee quote failed: ${feeError.message}`);
+    }
+    
+    // Test 4: Check approvals and balances
+    console.log("\n🧪 TEST 4: Token Approvals & Balances");
+    const balance = await SourceToken.balanceOf(signer.address);
+    const allowance = await SourceToken.allowance(signer.address, CrossChainRouter.address);
+    console.log(`Source balance: ${hre.ethers.utils.formatEther(balance)}`);
+    console.log(`Router allowance: ${hre.ethers.utils.formatEther(allowance)}`);
+    
+    if (allowance.lt(amountInWei)) {
+      console.log("⚠️ Insufficient allowance - this might be the issue!");
+      
+      // Try to approve
+      console.log("⏳ Approving router...");
+      const approveTx = await SourceToken.approve(CrossChainRouter.address, amountInWei);
+      await approveTx.wait();
+      console.log("✅ Router approved");
+    }
+    
+    // Test 5: Try calling crossChainSwap with staticCall to see where it fails
+    console.log("\n🧪 TEST 5: Static Call Test (dry run)");
+    try {
+      await CrossChainRouter.callStatic.crossChainSwap(
+        destConfig.eid,
+        recipientBytes32,
+        sourceToken,
+        destinationTokenBytes32,
+        amountInWei,
+        amountOutMinWei,
+        options,
+        { value: hre.ethers.utils.parseEther("0.01") }
+      );
+      console.log("✅ Static call succeeded - transaction should work!");
+    } catch (staticError: any) {
+      console.log(`❌ Static call failed: ${staticError.message}`);
+      
+      // Try to decode the error
+      if (staticError.message.includes("execution reverted")) {
+        console.log("🔍 The transaction reverts during execution");
+        
+        // Common revert reasons to check
+        const commonErrors = [
+          "PayfundsRouter: INSUFFICIENT_OUTPUT_AMOUNT",
+          "PayfundsRouter: INSUFFICIENT_A_AMOUNT", 
+          "PayfundsRouter: INSUFFICIENT_B_AMOUNT",
+          "PayfundsRouter: EXPIRED",
+          "ERC20: transfer amount exceeds balance",
+          "ERC20: transfer amount exceeds allowance"
+        ];
+        
+        console.log("📋 Common failure reasons:");
+        commonErrors.forEach(err => console.log(`   - ${err}`));
+      }
+    }
+    
+    // Test 6: Try individual components that crossChainSwap calls
+    console.log("\n🧪 TEST 6: Individual Component Tests");
+    
+    // Test source swap only
+    const DexRouter = await hre.ethers.getContractAt("contracts/CrossChainRouter.sol:IPayfundsRouter02", sourceConfig.Router);
+    const path = [sourceToken, stablecoin];
+    
+    try {
+      const amountsOut = await DexRouter.getAmountsOut(amountInWei, path);
+      console.log(`✅ DEX amounts out: ${hre.ethers.utils.formatEther(amountsOut[1])}`);
+      
+      // Check if slippage might be the issue
+      const currentAmountOut = amountsOut[1];
+      const estimatedAmountOut = estimatedOutput;
+      
+      if (!currentAmountOut.eq(estimatedAmountOut)) {
+        console.log("⚠️ Price changed between estimate and execution!");
+        console.log(`Current: ${hre.ethers.utils.formatEther(currentAmountOut)}`);
+        console.log(`Expected: ${hre.ethers.utils.formatEther(estimatedAmountOut)}`);
+      }
+      
+    } catch (dexError: any) {
+      console.log(`❌ DEX getAmountsOut failed: ${dexError.message}`);
+    }
+    
+  } catch (error: any) {
+    console.error(`❌ Granular debug failed: ${error.message}`);
+  }
+});
 
 // Estimate complete cross-chain swap output
 task("estimate-cross-chain-swap", "Estimate output for complete cross-chain swap")
@@ -682,6 +961,225 @@ task("check-pools", "Check if liquidity pools exist for cross-chain swap")
     }
   });
 
+// Set peer for CrossChainRouter (OApp)
+task("set-router-peer", "Set peer for CrossChainRouter on both chains")
+  .addParam("sourceNetwork", "Source network name")
+  .addParam("destinationNetwork", "Destination network name")
+  .setAction(async (taskArgs: any, hre: any) => {
+    const { sourceNetwork, destinationNetwork } = taskArgs;
+    
+    console.log("🔗 === SETTING CROSSCHAINROUTER PEERS ===");
+    console.log(`Setting peer from ${sourceNetwork} to ${destinationNetwork}`);
+    console.log("=========================================");
+
+    const sourceConfig = NETWORK_CONFIG[sourceNetwork];
+    const destConfig = NETWORK_CONFIG[destinationNetwork];
+    
+    if (!sourceConfig || !destConfig) {
+      throw new Error(`Unsupported network configuration`);
+    }
+
+    const [signer] = await hre.ethers.getSigners();
+    console.log(`🔑 Signer address: ${signer.address}`);
+
+    // Get CrossChainRouter contract on current network
+    const CrossChainRouter = await hre.ethers.getContractAt("CrossChainRouter", sourceConfig.CrossChainRouter);
+    
+    // Convert destination router address to bytes32
+    const destinationRouterBytes32 = hre.ethers.utils.hexZeroPad(destConfig.CrossChainRouter, 32);
+    
+    console.log(`\n📋 === PEER SETUP INFO ===`);
+    console.log(`Source Router: ${sourceConfig.CrossChainRouter}`);
+    console.log(`Destination Router: ${destConfig.CrossChainRouter}`);
+    console.log(`Destination EID: ${destConfig.eid}`);
+    console.log(`Destination Router (bytes32): ${destinationRouterBytes32}`);
+
+    try {
+      // Check current peer
+      try {
+        const currentPeer = await CrossChainRouter.peers(destConfig.eid);
+        console.log(`\n🔍 Current peer for EID ${destConfig.eid}: ${currentPeer}`);
+        
+        if (currentPeer.toLowerCase() === destinationRouterBytes32.toLowerCase()) {
+          console.log("✅ Peer already set correctly!");
+          return;
+        }
+      } catch (e) {
+        console.log("📝 No existing peer found");
+      }
+
+      // Set the peer
+      console.log("\n🔧 Setting peer...");
+      const setPeerTx = await CrossChainRouter.setPeer(destConfig.eid, destinationRouterBytes32, {
+        gasLimit: 200000,
+        gasPrice: hre.ethers.utils.parseUnits("25", "gwei")
+      });
+
+      console.log(`🚀 Transaction sent: ${setPeerTx.hash}`);
+      console.log("⏳ Waiting for confirmation...");
+
+      const receipt = await setPeerTx.wait();
+      
+      if (receipt.status === 0) {
+        console.error("❌ Transaction failed");
+        return;
+      }
+
+      console.log(`✅ Peer set successfully!`);
+      console.log(`📦 Block: ${receipt.blockNumber}`);
+      console.log(`⛽ Gas used: ${receipt.gasUsed.toString()}`);
+
+      // Verify the peer was set
+      const newPeer = await CrossChainRouter.peers(destConfig.eid);
+      console.log(`\n🔍 Verified peer for EID ${destConfig.eid}: ${newPeer}`);
+      
+      if (newPeer.toLowerCase() === destinationRouterBytes32.toLowerCase()) {
+        console.log("✅ Peer verification successful!");
+      } else {
+        console.log("❌ Peer verification failed!");
+      }
+
+    } catch (error: any) {
+      console.error("\n❌ === PEER SETUP FAILED ===");
+      console.error(`Error: ${error.message}`);
+      throw error;
+    }
+  });
+
+// Set peer for CustomStablecoinOFT
+task("set-oft-peer", "Set peer for CustomStablecoinOFT on both chains")
+  .addParam("sourceNetwork", "Source network name")
+  .addParam("destinationNetwork", "Destination network name")
+  .setAction(async (taskArgs: any, hre: any) => {
+    const { sourceNetwork, destinationNetwork } = taskArgs;
+    
+    console.log("🪙 === SETTING STABLECOIN OFT PEERS ===");
+    console.log(`Setting peer from ${sourceNetwork} to ${destinationNetwork}`);
+    console.log("======================================");
+
+    const sourceConfig = NETWORK_CONFIG[sourceNetwork];
+    const destConfig = NETWORK_CONFIG[destinationNetwork];
+    
+    if (!sourceConfig || !destConfig) {
+      throw new Error(`Unsupported network configuration`);
+    }
+
+    const [signer] = await hre.ethers.getSigners();
+    console.log(`🔑 Signer address: ${signer.address}`);
+
+    // Get CustomStablecoinOFT contract on current network
+    const StablecoinOFT = await hre.ethers.getContractAt("CustomStablecoinOFT", sourceConfig.CustomStablecoinOFT);
+    
+    // Convert destination OFT address to bytes32
+    const destinationOFTBytes32 = hre.ethers.utils.hexZeroPad(destConfig.CustomStablecoinOFT, 32);
+    
+    console.log(`\n📋 === PEER SETUP INFO ===`);
+    console.log(`Source OFT: ${sourceConfig.CustomStablecoinOFT}`);
+    console.log(`Destination OFT: ${destConfig.CustomStablecoinOFT}`);
+    console.log(`Destination EID: ${destConfig.eid}`);
+    console.log(`Destination OFT (bytes32): ${destinationOFTBytes32}`);
+
+    try {
+      // Check current peer
+      try {
+        const currentPeer = await StablecoinOFT.peers(destConfig.eid);
+        console.log(`\n🔍 Current peer for EID ${destConfig.eid}: ${currentPeer}`);
+        
+        if (currentPeer.toLowerCase() === destinationOFTBytes32.toLowerCase()) {
+          console.log("✅ Peer already set correctly!");
+          return;
+        }
+      } catch (e) {
+        console.log("📝 No existing peer found");
+      }
+
+      // Set the peer
+      console.log("\n🔧 Setting peer...");
+      const setPeerTx = await StablecoinOFT.setPeer(destConfig.eid, destinationOFTBytes32, {
+        gasLimit: 200000,
+        gasPrice: hre.ethers.utils.parseUnits("25", "gwei")
+      });
+
+      console.log(`🚀 Transaction sent: ${setPeerTx.hash}`);
+      console.log("⏳ Waiting for confirmation...");
+
+      const receipt = await setPeerTx.wait();
+      
+      if (receipt.status === 0) {
+        console.error("❌ Transaction failed");
+        return;
+      }
+
+      console.log(`✅ Peer set successfully!`);
+      console.log(`📦 Block: ${receipt.blockNumber}`);
+      console.log(`⛽ Gas used: ${receipt.gasUsed.toString()}`);
+
+      // Verify the peer was set
+      const newPeer = await StablecoinOFT.peers(destConfig.eid);
+      console.log(`\n🔍 Verified peer for EID ${destConfig.eid}: ${newPeer}`);
+      
+      if (newPeer.toLowerCase() === destinationOFTBytes32.toLowerCase()) {
+        console.log("✅ Peer verification successful!");
+      } else {
+        console.log("❌ Peer verification failed!");
+      }
+
+    } catch (error: any) {
+      console.error("\n❌ === PEER SETUP FAILED ===");
+      console.error(`Error: ${error.message}`);
+      throw error;
+    }
+  });
+
+// Check peer status
+task("check-peers", "Check current peer settings for both contracts")
+  .addParam("sourceNetwork", "Source network name")
+  .addParam("destinationNetwork", "Destination network name")
+  .setAction(async (taskArgs: any, hre: any) => {
+    const { sourceNetwork, destinationNetwork } = taskArgs;
+    
+    console.log("🔍 === CHECKING PEER STATUS ===");
+    console.log(`From ${sourceNetwork} to ${destinationNetwork}`);
+    console.log("===============================");
+
+    const sourceConfig = NETWORK_CONFIG[sourceNetwork];
+    const destConfig = NETWORK_CONFIG[destinationNetwork];
+    
+    try {
+      // Check CrossChainRouter peer
+      console.log("\n🔗 CrossChainRouter Peer Status:");
+      const CrossChainRouter = await hre.ethers.getContractAt("CrossChainRouter", sourceConfig.CrossChainRouter);
+      const routerPeer = await CrossChainRouter.peers(destConfig.eid);
+      const expectedRouterPeer = hre.ethers.utils.hexZeroPad(destConfig.CrossChainRouter, 32);
+      
+      console.log(`Expected: ${expectedRouterPeer}`);
+      console.log(`Current:  ${routerPeer}`);
+      console.log(`Status: ${routerPeer.toLowerCase() === expectedRouterPeer.toLowerCase() ? '✅ CORRECT' : '❌ INCORRECT'}`);
+
+      // Check CustomStablecoinOFT peer
+      console.log("\n🪙 CustomStablecoinOFT Peer Status:");
+      const StablecoinOFT = await hre.ethers.getContractAt("CustomStablecoinOFT", sourceConfig.CustomStablecoinOFT);
+      const oftPeer = await StablecoinOFT.peers(destConfig.eid);
+      const expectedOFTPeer = hre.ethers.utils.hexZeroPad(destConfig.CustomStablecoinOFT, 32);
+      
+      console.log(`Expected: ${expectedOFTPeer}`);
+      console.log(`Current:  ${oftPeer}`);
+      console.log(`Status: ${oftPeer.toLowerCase() === expectedOFTPeer.toLowerCase() ? '✅ CORRECT' : '❌ INCORRECT'}`);
+
+      // Summary
+      const routerOK = routerPeer.toLowerCase() === expectedRouterPeer.toLowerCase();
+      const oftOK = oftPeer.toLowerCase() === expectedOFTPeer.toLowerCase();
+      
+      console.log("\n📋 === SUMMARY ===");
+      console.log(`CrossChainRouter peer: ${routerOK ? '✅' : '❌'}`);
+      console.log(`StablecoinOFT peer: ${oftOK ? '✅' : '❌'}`);
+      console.log(`Overall status: ${routerOK && oftOK ? '✅ READY FOR SWAPS' : '❌ NEEDS SETUP'}`);
+
+    } catch (error: any) {
+      console.error(`❌ Peer check failed: ${error.message}`);
+    }
+  });
+
 console.log("CrossChainRouter tasks loaded successfully!");
 console.log("Available tasks:");
 console.log("  - cross-chain-swap: Complete cross-chain token swap");
@@ -689,3 +1187,6 @@ console.log("  - quote-cross-chain-fee: Quote fees for cross-chain swap");
 console.log("  - estimate-cross-chain-swap: Estimate swap outputs");
 console.log("  - estimate-destination-output: Estimate destination token output");
 console.log("  - check-pools: Check if liquidity pools exist for tokens");
+console.log("  - set-router-peer: Set peer for CrossChainRouter");
+console.log("  - set-oft-peer: Set peer for CustomStablecoinOFT");
+console.log("  - check-peers: Check current peer settings");

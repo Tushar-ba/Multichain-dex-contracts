@@ -36,31 +36,31 @@ const config: HardhatUserConfig = {
         url: 'https://avalanche-fuji.drpc.org',
         accounts: accounts ? [accounts] : [],
     },
-    'optimism-sepolia-testnet': {
-        eid: EndpointId.OPTSEP_V2_TESTNET,
-        url: 'https://optimism-sepolia.gateway.tenderly.co',
-        accounts: accounts ? [accounts] : [],
-    },
-    'ethereum-sepolia': {
-        eid: EndpointId.SEPOLIA_V2_TESTNET,
-        url: vars.get("SEPOLIA_RPC_URL", "https://eth-sepolia.g.alchemy.com/v2/Ln0Aa5Ea0iyVV0mh6RpyT"),
-        accounts: accounts ? [accounts] : [],
-    },
-    'bsc-testnet': {
-        eid: EndpointId.BSC_V2_TESTNET,
-        url: 'https://data-seed-prebsc-1-s1.binance.org:8545',
-        accounts: accounts ? [accounts] : [],
-    },
-    'base-sepolia': {
-        eid: EndpointId.BASESEP_V2_TESTNET,
-        url: 'https://sepolia.base.org',
-        accounts: accounts ? [accounts] : [],
-    },
-    'polygon-amoy': {
-        eid: EndpointId.AMOY_V2_TESTNET,
-        url: 'https://rpc-amoy.polygon.technology',
-        accounts: accounts ? [accounts] : [],
-    },
+    // 'optimism-sepolia-testnet': {
+    //     eid: EndpointId.OPTSEP_V2_TESTNET,
+    //     url: 'https://optimism-sepolia.gateway.tenderly.co',
+    //     accounts: accounts ? [accounts] : [],
+    // },
+    // 'ethereum-sepolia': {
+    //     eid: EndpointId.SEPOLIA_V2_TESTNET,
+    //     url: vars.get("SEPOLIA_RPC_URL", "https://eth-sepolia.g.alchemy.com/v2/Ln0Aa5Ea0iyVV0mh6RpyT"),
+    //     accounts: accounts ? [accounts] : [],
+    // },
+    // 'bsc-testnet': {
+    //     eid: EndpointId.BSC_V2_TESTNET,
+    //     url: 'https://data-seed-prebsc-1-s1.binance.org:8545',
+    //     accounts: accounts ? [accounts] : [],
+    // },
+    // 'base-sepolia': {
+    //     eid: EndpointId.BASESEP_V2_TESTNET,
+    //     url: 'https://sepolia.base.org',
+    //     accounts: accounts ? [accounts] : [],
+    // },
+    // 'polygon-amoy': {
+    //     eid: EndpointId.AMOY_V2_TESTNET,
+    //     url: 'https://rpc-amoy.polygon.technology',
+    //     accounts: accounts ? [accounts] : [],
+    // },
   },
   etherscan: {
     // Your single API key for all supported networks

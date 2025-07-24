@@ -342,8 +342,8 @@ contract CrossChainRouter is OApp, OAppOptionsType3 {
         // Approve the OFT contract to spend stablecoins
         IERC20(stablecoin).approve(address(stablecoinOFT), _amount);
 
-        // FIXED: Allow 0.5% slippage for OFT fees
-        uint256 minAmountAfterFee = _amount * 995 / 1000; // 0.5% slippage tolerance
+        // FIXED: Allow 5% slippage for OFT fees
+        uint256 minAmountAfterFee = _amount * 950 / 1000; // 5% slippage tolerance
         SendParam memory sendParam = SendParam({
             dstEid: _destinationEid,
             to: addressToBytes32(address(this)),
@@ -375,16 +375,16 @@ contract CrossChainRouter is OApp, OAppOptionsType3 {
      * @return totalFee The total fee required
      */
     function quoteSwapFee(
-        uint32 _destinationEid,
-        bytes32 _recipient,
-        bytes32 _destinationToken,
-        uint256 _amountOutMin,
-        uint256 _stableAmount,
-        bytes calldata _options
+    uint32 _destinationEid,
+    bytes32 _recipient,
+    bytes32 _destinationToken,
+    uint256 _amountOutMin,
+    uint256 _stableAmount,
+    bytes calldata _options
     ) external view returns (MessagingFee memory totalFee) {
         // Quote for bridging stablecoins with error handling
-        // FIXED: Allow 0.5% slippage for OFT fees
-        uint256 minAmountAfterFee = _stableAmount * 995 / 1000; // 0.5% slippage tolerance
+        // FIXED: Allow 5% slippage for OFT fees (matching _bridgeStablecoins)
+        uint256 minAmountAfterFee = _stableAmount * 950 / 1000; // 5% slippage tolerance
         SendParam memory sendParam = SendParam({
             dstEid: _destinationEid,
             to: addressToBytes32(address(this)),
