@@ -26,11 +26,11 @@ const config: HardhatUserConfig = {
   },
   networks: {
     // Existing testnets
-    'arbitrum-sepolia-testnet': {
-        eid: EndpointId.ARBSEP_V2_TESTNET,
-        url: 'https://arbitrum-sepolia.gateway.tenderly.co',
-        accounts: accounts ? [accounts] : [],
-    },
+    // 'arbitrum-sepolia-testnet': {
+    //     eid: EndpointId.ARBSEP_V2_TESTNET,
+    //     url: 'https://arbitrum-sepolia.gateway.tenderly.co',
+    //     accounts: accounts ? [accounts] : [],
+    // },
     'avalanche-fuji-testnet': {
         eid: EndpointId.AVALANCHE_V2_TESTNET,
         url: 'https://avalanche-fuji.drpc.org',
@@ -51,11 +51,11 @@ const config: HardhatUserConfig = {
     //     url: 'https://data-seed-prebsc-1-s1.binance.org:8545',
     //     accounts: accounts ? [accounts] : [],
     // },
-    // 'base-sepolia': {
-    //     eid: EndpointId.BASESEP_V2_TESTNET,
-    //     url: 'https://sepolia.base.org',
-    //     accounts: accounts ? [accounts] : [],
-    // },
+    'base-sepolia': {
+        eid: EndpointId.BASESEP_V2_TESTNET,
+        url: 'https://sepolia.base.org',
+        accounts: accounts ? [accounts] : [],
+    },
     // 'polygon-amoy': {
     //     eid: EndpointId.AMOY_V2_TESTNET,
     //     url: 'https://rpc-amoy.polygon.technology',

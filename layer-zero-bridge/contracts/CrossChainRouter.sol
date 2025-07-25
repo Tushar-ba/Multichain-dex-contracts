@@ -28,6 +28,16 @@ interface IPayfundsRouter02 {
         uint amountIn,
         address[] calldata path
     ) external view returns (uint[] memory amounts);
+    function addLiquidity(
+        address tokenA,
+        address tokenB,
+        uint amountADesired,
+        uint amountBDesired,
+        uint amountAMin,
+        uint amountBMin,
+        address to,
+        uint deadline
+    ) external   returns (uint amountA, uint amountB, uint liquidity);
 }
 
 interface IERC20 {
@@ -258,75 +268,146 @@ contract CrossChainRouter is OApp, OAppOptionsType3 {
      * @param _amountOutMin The minimum amount of destination tokens to receive
      * @param _options Additional options for the LayerZero message
      */
-    function crossChainSwap(
-        uint32 _destinationEid,
-        bytes32 _recipient,
-        address _sourceToken,
-        bytes32 _destinationToken,
-        uint256 _amountIn,
-        uint256 _amountOutMin,
-        bytes calldata _options
-    ) external payable {
-        // 1. Take user's source tokens
-        require(
-            IERC20(_sourceToken).transferFrom(msg.sender, address(this), _amountIn),
-            "Token transfer failed"
-        );
+   /**
+ * @notice Initiates a complete cross-chain swap - CORRECTED VERSION
+ * @param _destinationEid The LayerZero endpoint ID for the destination chain
+ * @param _recipient The recipient address on the destination chain (as bytes32)
+ * @param _sourceToken The token to swap on the source chain
+ * @param _destinationToken The token to receive on the destination chain (as bytes32)
+ * @param _amountIn The amount of source tokens to swap
+ * @param _amountOutMin The minimum amount of destination tokens to receive
+ * @param _options Additional options for the LayerZero message
+ */
+function crossChainSwap(
+    uint32 _destinationEid,
+    bytes32 _recipient,
+    address _sourceToken,
+    bytes32 _destinationToken,
+    uint256 _amountIn,
+    uint256 _amountOutMin,
+    bytes calldata _options
+) external payable {
+    // 1. Take user's source tokens
+    require(
+        IERC20(_sourceToken).transferFrom(msg.sender, address(this), _amountIn),
+        "Token transfer failed"
+    );
 
-        // 2. Swap source token for stablecoin on the source chain
-        IERC20(_sourceToken).approve(address(dexRouter), _amountIn);
+    // 2. Swap source token for stablecoin on the source chain
+    IERC20(_sourceToken).approve(address(dexRouter), _amountIn);
 
-        address[] memory path = new address[](2);
-        path[0] = _sourceToken;
-        path[1] = stablecoin;
+    address[] memory path = new address[](2);
+    path[0] = _sourceToken;
+    path[1] = stablecoin;
 
-        uint[] memory amounts = dexRouter.swapExactTokensForTokens(
-            _amountIn,
-            0, // No minimum for the intermediate swap
-            path,
-            address(this),
-            block.timestamp + 1200
-        );
+    uint[] memory amounts = dexRouter.swapExactTokensForTokens(
+        _amountIn,
+        0, // No minimum for the intermediate swap
+        path,
+        address(this),
+        block.timestamp + 1200
+    );
 
-        uint256 stableAmount = amounts[amounts.length - 1];
+    uint256 stableAmount = amounts[amounts.length - 1];
+    bytes32 destinationRouter = getDestinationRouter(_destinationEid);
 
-        // 3. Bridge stablecoins to destination chain using OFT
-        _bridgeStablecoins(_destinationEid, stableAmount, _options);
+    // 3. CRITICAL: Calculate both fees BEFORE executing
+    
+    // 3a. Quote OFT bridge fee
+    uint256 minAmountAfterFee = stableAmount * 950 / 1000; // 5% slippage
+    SendParam memory sendParam = SendParam({
+        dstEid: _destinationEid,
+        to: destinationRouter,
+        amountLD: stableAmount,
+        minAmountLD: minAmountAfterFee,
+        extraOptions: _options,
+        composeMsg: "",
+        oftCmd: ""
+    });
+    
+    MessagingFee memory bridgeFee = stablecoinOFT.quoteSend(sendParam, false);
 
-        // 4. Send swap instructions to destination chain (with gas for execution)
-        bytes memory payload = abi.encode(
-            _recipient,
-            _destinationToken,
-            _amountOutMin,
-            stableAmount,
-            msg.sender // refund recipient
-        );
+    // 3b. Quote message fee
+    bytes memory payload = abi.encode(
+        _recipient,
+        _destinationToken,
+        _amountOutMin,
+        stableAmount,
+        msg.sender
+    );
+    bytes memory combinedOptions = combineOptions(_destinationEid, SWAP, _options);
+    MessagingFee memory msgFee = _quote(_destinationEid, payload, combinedOptions, false);
 
-        bytes memory combinedOptions = combineOptions(_destinationEid, SWAP, _options);
+    // 3c. Verify user sent enough ETH for BOTH operations
+    uint256 totalRequiredFee = bridgeFee.nativeFee + msgFee.nativeFee;
+    require(msg.value >= totalRequiredFee, 
+    string(abi.encodePacked(
+        "NotEnoughNative: Required ", 
+        toString(totalRequiredFee), 
+        " wei, got ", 
+        toString(msg.value), 
+        " wei. Bridge: ",
+        toString(bridgeFee.nativeFee),
+        " Message: ",
+        toString(msgFee.nativeFee)
+    ))
+);
 
-        // Calculate messaging fee
-        MessagingFee memory msgFee = _quote(_destinationEid, payload, combinedOptions, false);
-        require(msg.value >= msgFee.nativeFee, "Insufficient fee provided");
+    // 4. Execute OFT bridge with its specific fee
+    IERC20(stablecoin).approve(address(stablecoinOFT), stableAmount);
+    
+    stablecoinOFT.send{value: bridgeFee.nativeFee}(
+        sendParam,
+        bridgeFee,
+        payable(address(this))
+    );
 
-        _lzSend(
-            _destinationEid,
-            payload,
-            combinedOptions,
-            MessagingFee(msg.value, 0),
-            payable(msg.sender)
-        );
+    // 5. Send swap instructions with its specific fee
+    _lzSend(
+        _destinationEid,
+        payload,
+        combinedOptions,
+        MessagingFee(msgFee.nativeFee, 0), // Use ONLY the message fee
+        payable(msg.sender)
+    );
 
-        emit CrossChainSwapInitiated(
-            msg.sender,
-            _destinationEid,
-            _recipient,
-            _sourceToken,
-            _destinationToken,
-            _amountIn,
-            stableAmount,
-            _amountOutMin
-        );
+    emit CrossChainSwapInitiated(
+        msg.sender,
+        _destinationEid,
+        _recipient,
+        _sourceToken,
+        _destinationToken,
+        _amountIn,
+        stableAmount,
+        _amountOutMin
+    );
+
+    // 6. Refund any excess ETH
+    uint256 excessFee = msg.value - totalRequiredFee;
+    if (excessFee > 0) {
+        payable(msg.sender).transfer(excessFee);
     }
+}
+
+// Helper function to convert uint to string for error messages
+function toString(uint256 value) internal pure returns (string memory) {
+    if (value == 0) {
+        return "0";
+    }
+    uint256 temp = value;
+    uint256 digits;
+    while (temp != 0) {
+        digits++;
+        temp /= 10;
+    }
+    bytes memory buffer = new bytes(digits);
+    while (value != 0) {
+        digits -= 1;
+        buffer[digits] = bytes1(uint8(48 + uint256(value % 10)));
+        value /= 10;
+    }
+    return string(buffer);
+}
 
     /**
      * @notice Bridge stablecoins to destination chain using OFT
@@ -344,9 +425,10 @@ contract CrossChainRouter is OApp, OAppOptionsType3 {
 
         // FIXED: Allow 5% slippage for OFT fees
         uint256 minAmountAfterFee = _amount * 950 / 1000; // 5% slippage tolerance
+        bytes32 destinationRouter = getDestinationRouter(_destinationEid);
         SendParam memory sendParam = SendParam({
             dstEid: _destinationEid,
-            to: addressToBytes32(address(this)),
+            to: destinationRouter,
             amountLD: _amount,
             minAmountLD: minAmountAfterFee, // Allow slippage for OFT fees
             extraOptions: _options,
@@ -374,54 +456,84 @@ contract CrossChainRouter is OApp, OAppOptionsType3 {
      * @param _options LayerZero options
      * @return totalFee The total fee required
      */
-    function quoteSwapFee(
+   /**
+ * @notice Quote total fees for cross-chain swap (OFT bridge + messaging with gas)
+ * @param _destinationEid The destination endpoint ID
+ * @param _recipient The recipient address
+ * @param _destinationToken The destination token
+ * @param _amountOutMin Minimum output amount
+ * @param _stableAmount Amount of stablecoins to bridge
+ * @param _options LayerZero options
+ * @return totalFee The total fee required for BOTH operations
+ */
+function quoteSwapFee(
     uint32 _destinationEid,
     bytes32 _recipient,
     bytes32 _destinationToken,
     uint256 _amountOutMin,
     uint256 _stableAmount,
     bytes calldata _options
-    ) external view returns (MessagingFee memory totalFee) {
-        // Quote for bridging stablecoins with error handling
-        // FIXED: Allow 5% slippage for OFT fees (matching _bridgeStablecoins)
-        uint256 minAmountAfterFee = _stableAmount * 950 / 1000; // 5% slippage tolerance
-        SendParam memory sendParam = SendParam({
-            dstEid: _destinationEid,
-            to: addressToBytes32(address(this)),
-            amountLD: _stableAmount,
-            minAmountLD: minAmountAfterFee, // Allow slippage for OFT fees
-            extraOptions: _options,
-            composeMsg: "",
-            oftCmd: ""
-        });
-        
-        // FIXED: Add try-catch for better error handling
-        MessagingFee memory bridgeFee;
-        try stablecoinOFT.quoteSend(sendParam, false) returns (MessagingFee memory fee) {
-            bridgeFee = fee;
-        } catch {
-            // If OFT quote fails, use conservative estimate
-            bridgeFee.nativeFee = 0.02 ether; // 0.02 ETH estimate
-            bridgeFee.lzTokenFee = 0;
+) external view returns (MessagingFee memory totalFee) {
+    // 1. Quote OFT bridge fee (first operation)
+    bytes32 destinationRouter = getDestinationRouter(_destinationEid);
+    uint256 minAmountAfterFee = _stableAmount * 950 / 1000; // 5% slippage
+    SendParam memory sendParam = SendParam({
+        dstEid: _destinationEid,
+        to: destinationRouter,
+        amountLD: _stableAmount,
+        minAmountLD: minAmountAfterFee,
+        extraOptions: _options,
+        composeMsg: "",
+        oftCmd: ""
+    });
+    
+    MessagingFee memory bridgeFee;
+    try stablecoinOFT.quoteSend(sendParam, false) returns (MessagingFee memory fee) {
+        bridgeFee = fee;
+    } catch Error(string memory reason) {
+        revert(string(abi.encodePacked("OFT quote failed: ", reason)));
+    } catch (bytes memory lowLevelData) {
+        // Try to decode custom errors
+        if (lowLevelData.length >= 4) {
+            bytes4 errorSelector = bytes4(lowLevelData);
+            revert(string(abi.encodePacked("OFT quote failed with selector: ", toHexString(errorSelector))));
         }
-
-        // Quote for swap instruction message (includes destination execution gas)
-        bytes memory payload = abi.encode(_recipient, _destinationToken, _amountOutMin, _stableAmount, address(0));
-        bytes memory combinedOptions = combineOptions(_destinationEid, SWAP, _options);
-        
-        MessagingFee memory swapFee;
-        try this.quote(_destinationEid, payload, combinedOptions, false) returns (MessagingFee memory fee) {
-            swapFee = fee;
-        } catch {
-            // If message quote fails, use conservative estimate
-            swapFee.nativeFee = 0.03 ether; // 0.03 ETH estimate for message + gas
-            swapFee.lzTokenFee = 0;
-        }
-
-        // Return combined fee
-        totalFee.nativeFee = bridgeFee.nativeFee + swapFee.nativeFee;
-        totalFee.lzTokenFee = bridgeFee.lzTokenFee + swapFee.lzTokenFee;
+        revert("OFT quote failed with unknown error");
     }
+
+    // 2. Quote message fee (second operation)
+    bytes memory payload = abi.encode(_recipient, _destinationToken, _amountOutMin, _stableAmount, address(0));
+    bytes memory combinedOptions = combineOptions(_destinationEid, SWAP, _options);
+    
+    MessagingFee memory swapFee;
+    try this.quote(_destinationEid, payload, combinedOptions, false) returns (MessagingFee memory fee) {
+        swapFee = fee;
+    } catch Error(string memory reason) {
+        revert(string(abi.encodePacked("Message quote failed: ", reason)));
+    } catch {
+        revert("Message quote failed");
+    }
+
+    // 3. Return combined fee (both operations)
+    totalFee.nativeFee = bridgeFee.nativeFee + swapFee.nativeFee;
+    totalFee.lzTokenFee = bridgeFee.lzTokenFee + swapFee.lzTokenFee;
+    
+    // Add 5% buffer for gas fluctuations
+    totalFee.nativeFee = totalFee.nativeFee * 105 / 100;
+}
+
+// Helper function for error debugging
+function toHexString(bytes4 value) internal pure returns (string memory) {
+    bytes memory alphabet = "0123456789abcdef";
+    bytes memory str = new bytes(10);
+    str[0] = '0';
+    str[1] = 'x';
+    for (uint i = 0; i < 4; i++) {
+        str[2+i*2] = alphabet[uint(uint8(value[i] >> 4))];
+        str[3+i*2] = alphabet[uint(uint8(value[i] & 0x0f))];
+    }
+    return string(str);
+}
 
     /**
      * @notice Public wrapper for the internal _quote function for external access
@@ -468,6 +580,14 @@ contract CrossChainRouter is OApp, OAppOptionsType3 {
 
         uint[] memory destAmounts = dexRouter.getAmountsOut(_stableAmount, destPath);
         destTokenAmount = destAmounts[destAmounts.length - 1];
+    }
+
+    function getDestinationRouter(uint32 _destinationEid) internal view returns (bytes32) {
+        // Get the peer address for this destination EID
+        // The peer should be the CrossChainRouter contract on the destination chain
+        bytes32 peer = peers[_destinationEid];
+        require(peer != bytes32(0), "No peer set for destination EID");
+        return peer;
     }
 
     // Helper functions

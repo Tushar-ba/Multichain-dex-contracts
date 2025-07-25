@@ -14,7 +14,7 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
 
     // PayfundsRouter02 addresses for Arbitrum and Avalanche
     const dexRouters: { [key: string]: string } = {
-        'arbitrum-sepolia-testnet': '0xA9a558fB3269F307eE57270b41fcBaFFC56d5290',
+        'arbitrum-sepolia-testnet': '0xC5e1362cC4768A10331f77DDe46572f54802e142',
         'avalanche-fuji-testnet': '0x011b561002A1D2522210BA3d687131AB1F6AcF79',
     };
 
