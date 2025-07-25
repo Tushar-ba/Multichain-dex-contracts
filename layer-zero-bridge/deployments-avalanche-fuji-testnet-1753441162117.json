@@ -1,9 +1,9 @@
 {
   "network": "avalanche-fuji-testnet",
-  "timestamp": "2025-07-25T09:48:11.774Z",
+  "timestamp": "2025-07-25T11:00:04.162Z",
   "contracts": {
     "CustomStablecoinOFT": {
-      "address": "0x8ffFA9c480FF1092bAd184154b37BCfA4a801829",
+      "address": "0xD7F519EAA9529e4380974D6AF18309Dc892A7c48",
       "constructorArgs": [
         "Payfunds USD",
         "PFUSD",
@@ -13,12 +13,12 @@
       "verified": true
     },
     "CrossChainRouter": {
-      "address": "0x83dce164A8d1b8b8d70d0b99b7Aa7b22c4EABb40",
+      "address": "0x8a2e83697D249E5C490233E59F8831cd20A850Bc",
       "constructorArgs": [
         "0x6EDCE65403992e310A62460808c4b910D972f10f",
         "0x49f51e3C94B459677c3B1e611DB3E44d4E6b1D55",
         "0x011b561002A1D2522210BA3d687131AB1F6AcF79",
-        "0x8ffFA9c480FF1092bAd184154b37BCfA4a801829"
+        "0xD7F519EAA9529e4380974D6AF18309Dc892A7c48"
       ],
       "verified": true
     }
@@ -28,7 +28,7 @@
     "dexRouter": "0x011b561002A1D2522210BA3d687131AB1F6AcF79"
   },
   "explorerLinks": {
-    "CustomStablecoinOFT": "https://testnet.snowtrace.io/address/0x8ffFA9c480FF1092bAd184154b37BCfA4a801829",
-    "CrossChainRouter": "https://testnet.snowtrace.io/address/0x83dce164A8d1b8b8d70d0b99b7Aa7b22c4EABb40"
+    "CustomStablecoinOFT": "https://testnet.snowtrace.io/address/0xD7F519EAA9529e4380974D6AF18309Dc892A7c48",
+    "CrossChainRouter": "https://testnet.snowtrace.io/address/0x8a2e83697D249E5C490233E59F8831cd20A850Bc"
   }
 }

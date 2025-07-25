@@ -4,11 +4,11 @@ import { TwoWayConfig, generateConnectionsConfig } from '@layerzerolabs/metadata
 import { OAppEnforcedOption, OmniPointHardhat } from '@layerzerolabs/toolbox-hardhat';
 
 // Define CustomStablecoinOFT contract deployments for ONLY deployed networks
-// const arbitrumStablecoin: OmniPointHardhat = {
-//   eid: EndpointId.ARBSEP_V2_TESTNET,
-//   contractName: 'CustomStablecoinOFT',
-//   address: '0x2520342A8e02D4782dCe3Db0e579Fff965D873C2',
-// };
+const arbitrumStablecoin: OmniPointHardhat = {
+  eid: EndpointId.ARBSEP_V2_TESTNET,
+  contractName: 'CustomStablecoinOFT',
+  address: '0x2520342A8e02D4782dCe3Db0e579Fff965D873C2',
+};
 
 const avalancheStablecoin: OmniPointHardhat = {
   eid: EndpointId.AVALANCHE_V2_TESTNET,
@@ -17,27 +17,16 @@ const avalancheStablecoin: OmniPointHardhat = {
 };
 
 // Define CrossChainRouter contract deployments for ONLY deployed networks
-// const arbitrumRouter: OmniPointHardhat = {
-//   eid: EndpointId.ARBSEP_V2_TESTNET,
-//   contractName: 'CrossChainRouter',
-//   address: '0x8C17e97049D74d9AB75BB966ef045f83c52D0b27',
-// };
+const arbitrumRouter: OmniPointHardhat = {
+  eid: EndpointId.ARBSEP_V2_TESTNET,
+  contractName: 'CrossChainRouter',
+  address: '0x8C17e97049D74d9AB75BB966ef045f83c52D0b27',
+};
 
 const avalancheRouter: OmniPointHardhat = {
   eid: EndpointId.AVALANCHE_V2_TESTNET,
   contractName: 'CrossChainRouter',
   address: '0x83dce164A8d1b8b8d70d0b99b7Aa7b22c4EABb40',
-};
-
-const baseSepoliaStablecoin: OmniPointHardhat = {
-  eid: EndpointId.BASESEP_V2_TESTNET,
-  contractName: 'CustomStablecoinOFT',
-  address: '0x2520342A8e02D4782dCe3Db0e579Fff965D873C2',
-};
-const baseSepoliaRouter: OmniPointHardhat = {
-  eid: EndpointId.BASESEP_V2_TESTNET,
-  contractName: 'CrossChainRouter',
-  address: '0x8C17e97049D74d9AB75BB966ef045f83c52D0b27',
 };
 
 // Configure enforced options for OFT transfers (msg type 1)
@@ -63,7 +52,7 @@ const ROUTER_ENFORCED_OPTIONS: OAppEnforcedOption[] = [
 // Define the pathways for OFT transfers (only between deployed networks)
 const oftPathways: TwoWayConfig[] = [
   [
-    baseSepoliaStablecoin,
+    arbitrumStablecoin,
     avalancheStablecoin,
     [['LayerZero Labs'], []], // [requiredDVNs, [optionalDVNs, threshold]]
     [1, 1], // [source to dest confirmations, dest to source confirmations]
@@ -74,7 +63,7 @@ const oftPathways: TwoWayConfig[] = [
 // Define pathways for CrossChainRouter (only between deployed networks)
 const routerPathways: TwoWayConfig[] = [
   [
-    baseSepoliaRouter,
+    arbitrumRouter,
     avalancheRouter,
     [['LayerZero Labs'], []],
     [1, 1],
@@ -92,11 +81,11 @@ export default async function () {
   return {
     contracts: [
       // OFT contracts (only deployed networks)
-      { contract: baseSepoliaStablecoin },
+      { contract: arbitrumStablecoin },
       { contract: avalancheStablecoin },
       
       // Router contracts (only deployed networks)
-      { contract: baseSepoliaRouter },
+      { contract: arbitrumRouter },
       { contract: avalancheRouter },
     ],
     connections,

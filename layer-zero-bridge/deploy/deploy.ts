@@ -8,16 +8,16 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
 
     // LayerZero V2 Endpoint addresses for Arbitrum and Avalanche testnets
     const lzEndpoints: { [key: string]: string } = {
-        'arbitrum-sepolia-testnet': '0x6EDCE65403992e310A62460808c4b910D972f10f',
+        'base-sepolia': '0x6EDCE65403992e310A62460808c4b910D972f10f',
         'avalanche-fuji-testnet': '0x6EDCE65403992e310A62460808c4b910D972f10f',
     };
 
     // PayfundsRouter02 addresses for Arbitrum and Avalanche
     const dexRouters: { [key: string]: string } = {
-        'arbitrum-sepolia-testnet': '0xC5e1362cC4768A10331f77DDe46572f54802e142',
+        'base-sepolia': '0xC3b415C823366DC2222d979b0a17ce9C72A4feEB',
         'avalanche-fuji-testnet': '0x011b561002A1D2522210BA3d687131AB1F6AcF79',
     };
-
+    
     const lzEndpoint = lzEndpoints[network.name];
     const dexRouter = dexRouters[network.name];
 

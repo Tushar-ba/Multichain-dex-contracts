@@ -1,0 +1,34 @@
+{
+  "network": "base-sepolia",
+  "timestamp": "2025-07-25T11:00:15.680Z",
+  "contracts": {
+    "CustomStablecoinOFT": {
+      "address": "0x91735d81732902Cb2a80Dcffc2188592B4031226",
+      "constructorArgs": [
+        "Payfunds USD",
+        "PFUSD",
+        "0x6EDCE65403992e310A62460808c4b910D972f10f",
+        "0x49f51e3C94B459677c3B1e611DB3E44d4E6b1D55"
+      ],
+      "verified": true
+    },
+    "CrossChainRouter": {
+      "address": "0x69c475d50afa8EAd344E85326369277F88b74CC6",
+      "constructorArgs": [
+        "0x6EDCE65403992e310A62460808c4b910D972f10f",
+        "0x49f51e3C94B459677c3B1e611DB3E44d4E6b1D55",
+        "0xC3b415C823366DC2222d979b0a17ce9C72A4feEB",
+        "0x91735d81732902Cb2a80Dcffc2188592B4031226"
+      ],
+      "verified": true
+    }
+  },
+  "config": {
+    "lzEndpoint": "0x6EDCE65403992e310A62460808c4b910D972f10f",
+    "dexRouter": "0xC3b415C823366DC2222d979b0a17ce9C72A4feEB"
+  },
+  "explorerLinks": {
+    "CustomStablecoinOFT": "0x91735d81732902Cb2a80Dcffc2188592B4031226",
+    "CrossChainRouter": "0x69c475d50afa8EAd344E85326369277F88b74CC6"
+  }
+}
