@@ -8,13 +8,13 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
 
     // LayerZero V2 Endpoint addresses for Arbitrum and Avalanche testnets
     const lzEndpoints: { [key: string]: string } = {
-        'base-sepolia': '0x6EDCE65403992e310A62460808c4b910D972f10f',
+        'holesky': '0x6EDCE65403992e310A62460808c4b910D972f10f',
         'avalanche-fuji-testnet': '0x6EDCE65403992e310A62460808c4b910D972f10f',
     };
 
     // PayfundsRouter02 addresses for Arbitrum and Avalanche
     const dexRouters: { [key: string]: string } = {
-        'base-sepolia': '0xC3b415C823366DC2222d979b0a17ce9C72A4feEB',
+        'holesky': '0x1F2Ea7012Be2Fb0Ba2ce8B7B2A1ab3357Ab2315d',
         'avalanche-fuji-testnet': '0x011b561002A1D2522210BA3d687131AB1F6AcF79',
     };
     
@@ -139,7 +139,8 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     if (shouldVerify) {
         console.log(`🔗 View verified contracts on block explorer:`);
         const explorerUrls: { [key: string]: string } = {
-            'arbitrum-sepolia-testnet': 'https://sepolia.arbiscan.io/address/',
+            // 'arbitrum-sepolia-testnet': 'https://sepolia.arbiscan.io/address/',
+            'base-sepolia': 'https://sepolia.basescan.org/address/',
             'avalanche-fuji-testnet': 'https://testnet.snowtrace.io/address/',
         };
         
@@ -178,12 +179,12 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
             dexRouter,
         },
         explorerLinks: shouldVerify ? {
-            CustomStablecoinOFT: `${['arbitrum-sepolia-testnet', 'avalanche-fuji-testnet'].includes(network.name) ? {
-                'arbitrum-sepolia-testnet': 'https://sepolia.arbiscan.io/address/',
+            CustomStablecoinOFT: `${['base-sepolia', 'avalanche-fuji-testnet'].includes(network.name) ? {
+                'base-sepolia': 'https://sepolia.basescan.org/address/',
                 'avalanche-fuji-testnet': 'https://testnet.snowtrace.io/address/',
             }[network.name] || '' : ''}${stablecoinOFT.address}`,
-            CrossChainRouter: `${['arbitrum-sepolia-testnet', 'avalanche-fuji-testnet'].includes(network.name) ? {
-                'arbitrum-sepolia-testnet': 'https://sepolia.arbiscan.io/address/',
+            CrossChainRouter: `${['base-sepolia', 'avalanche-fuji-testnet'].includes(network.name) ? {
+                'base-sepolia': 'https://sepolia.basescan.org/address/',
                 'avalanche-fuji-testnet': 'https://testnet.snowtrace.io/address/',
             }[network.name] || '' : ''}${crossChainRouter.address}`
         } : undefined

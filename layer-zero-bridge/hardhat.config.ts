@@ -26,9 +26,14 @@ const config: HardhatUserConfig = {
   },
   networks: {
     // Existing testnets
-    'arbitrum-sepolia-testnet': {
-        eid: EndpointId.ARBSEP_V2_TESTNET,
-        url: 'https://arbitrum-sepolia.gateway.tenderly.co',
+    // 'arbitrum-sepolia-testnet': {
+    //     eid: EndpointId.ARBSEP_V2_TESTNET,
+    //     url: 'https://arbitrum-sepolia.gateway.tenderly.co',
+    //     accounts: accounts ? [accounts] : [],
+    // },
+    'holesky': {
+        eid: EndpointId.HOLESKY_V2_TESTNET,
+        url: 'https://holesky.drpc.org',
         accounts: accounts ? [accounts] : [],
     },
     'avalanche-fuji-testnet': {
@@ -64,7 +69,10 @@ const config: HardhatUserConfig = {
   },
   etherscan: {
     // Your single API key for all supported networks
-    apiKey: "TW9C6RTF7KQ6MVTR34J853Y6HHSXBZD45W",
+    apiKey: {
+    holesky: "K675NHYZWXFM8BBCRA6GG8C4AIVE4TF7JK",
+    avalancheFujiTestnet: "K675NHYZWXFM8BBCRA6GG8C4AIVE4TF7JK",
+  },
     // Add the custom chain definition for Optimism Sepolia
     customChains: [
       {

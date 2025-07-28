@@ -53,7 +53,7 @@ module.exports = {
 
   etherscan: {
     // Your single API key for all supported networks
-    apiKey: process.env.ETHERSCAN_API_KEY,
+    apiKey:process.env.ETHERSCAN_API_KEY,
     // Add the custom chain definition for Optimism Sepolia
     customChains: [
       {
