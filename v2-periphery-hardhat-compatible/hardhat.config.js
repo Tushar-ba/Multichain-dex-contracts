@@ -22,7 +22,7 @@ module.exports = {
       accounts,
     },
     holesky: {
-      url: "https://ethereum-holesky.publicnode.com",
+      url: "https://holesky.drpc.org",
       chainId: 17000,
       accounts,
     },

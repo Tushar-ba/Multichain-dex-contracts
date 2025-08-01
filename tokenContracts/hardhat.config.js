@@ -15,7 +15,7 @@ module.exports = {
       accounts,
     },
     holesky: {
-      url: "https://ethereum-holesky.publicnode.com",
+      url: "https://holesky.drpc.org",
       chainId: 17000,
       accounts,
     },
@@ -53,7 +53,7 @@ module.exports = {
 
   etherscan: {
     // Your single API key for all supported networks
-    apiKey:process.env.ETHERSCAN_API_KEY,
+    apiKey: "K675NHYZWXFM8BBCRA6GG8C4AIVE4TF7JK",
     // Add the custom chain definition for Optimism Sepolia
     customChains: [
       {

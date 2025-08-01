@@ -1,0 +1,14 @@
+{
+  "network": "avalanche-fuji",
+  "deployer": "0x49f51e3C94B459677c3B1e611DB3E44d4E6b1D55",
+  "contracts": {
+    "customStableCoin": "0x0F6eC6D1A81915ba6538b129b2E3a6E46b1c501f",
+    "flexibleAxelarRouter": "0xa9d663860157B2bACB6849aed2f4b71329410D10"
+  },
+  "axelar": {
+    "gateway": "0xC249632c2D40b9001FE907806902f63038B737Ab",
+    "gasService": "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6"
+  },
+  "dexRouter": "0x011b561002A1D2522210BA3d687131AB1F6AcF79",
+  "timestamp": "2025-07-30T17:29:58.167Z"
+}

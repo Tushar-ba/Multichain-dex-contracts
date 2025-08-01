@@ -2,9 +2,9 @@ const { ethers } = require("hardhat");
 
 async function main() {
     const [deployer] = await ethers.getSigners();
-    const token = await ethers.getContractAt("TokenMintingContract", "0x31a210d4BaD0D1f1a7d96acfD637E082B854ADE8");
-    const CrossRouter = "0x3997e41F60643491b9a26666eD4668303D7fDF4b";
-    const Router = "0x1F2Ea7012Be2Fb0Ba2ce8B7B2A1ab3357Ab2315d"
+    const token = await ethers.getContractAt("TokenMintingContract", "0x1963f6163D9eaFCb1aF6DB7207b21E8aD6548751");
+    const CrossRouter = "0x9F577e8A1be3ec65BE0fb139425988dfE438196e";
+    const Router = "0x011b561002A1D2522210BA3d687131AB1F6AcF79"
     const amount = ethers.parseUnits("1000000000000000000", 18);
     const address = "0x49f51e3C94B459677c3B1e611DB3E44d4E6b1D55";
     const tx3 = await token.mint(address, amount);

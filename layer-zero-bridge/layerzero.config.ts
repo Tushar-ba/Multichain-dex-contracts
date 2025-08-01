@@ -11,15 +11,15 @@ import { OAppEnforcedOption, OmniPointHardhat } from '@layerzerolabs/toolbox-har
 // };
 
 const holeskyStablecoin: OmniPointHardhat = {
-  eid: EndpointId.HOLESKY_V2_TESTNET,
+  eid: 40217,
   contractName: 'CustomStablecoinOFT',
-  address: '0x4d7c436e23ce51c42A9d6587B5812673f2dC756C', // Update with actual base sepolia address
+  address: '0x0a44Dc381949F6128Ca0615B4c68F0D15818dE74', // Update with actual base sepolia address
 };
 
 const avalancheStablecoin: OmniPointHardhat = {
-  eid: EndpointId.AVALANCHE_V2_TESTNET,
+  eid: 40106,
   contractName: 'CustomStablecoinOFT',
-  address: '0x0d2f518e859cC3C2E6B93118312Dd240507A91F6',
+  address: '0x55C192C8bF6749F65dE78E524273A481C4b1f667',
 };
 
 // Define CrossChainRouter contract deployments for ONLY deployed networks
@@ -35,15 +35,15 @@ const avalancheStablecoin: OmniPointHardhat = {
 //   address: '0x111087Fd5862966b9cbD37fD70420E07Bee91994', // Update with actual base sepolia address
 // };
 const holeskyRouter: OmniPointHardhat = {
-  eid: EndpointId.HOLESKY_V2_TESTNET,
+  eid: 40217,
   contractName: 'CrossChainRouter',
-  address: '0x3997e41F60643491b9a26666eD4668303D7fDF4b', // Update with actual holesky address
+  address: '0xC411824F1695feeC0f9b8C3d4810c2FD1AB1000a', // Update with actual holesky address
 };
 
 const avalancheRouter: OmniPointHardhat = {
-  eid: EndpointId.AVALANCHE_V2_TESTNET,
+  eid: 40106,
   contractName: 'CrossChainRouter',
-  address: '0x17FcF7d721C3c9Ab30d5AE2706c3562E7B01eA27',
+  address: '0x9F577e8A1be3ec65BE0fb139425988dfE438196e',
 };
 
 // Configure enforced options for OFT transfers (msg type 1)

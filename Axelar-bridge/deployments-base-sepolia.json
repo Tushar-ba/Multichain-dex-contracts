@@ -1,0 +1,14 @@
+{
+  "network": "base-sepolia",
+  "deployer": "0x49f51e3C94B459677c3B1e611DB3E44d4E6b1D55",
+  "contracts": {
+    "customStableCoin": "0x5876ec64ee96F9a181b5b6a17675EC3735e16A94",
+    "flexibleAxelarRouter": "0x110Bac14c579818fFCBE7ef7fBcf1e654614e81A"
+  },
+  "axelar": {
+    "gateway": "0xe432150cce91c13a887f7D836923d5597adD8E31",
+    "gasService": "0x2d5d7d31F671F86C782533cc367F14109a082712"
+  },
+  "dexRouter": "0xC3b415C823366DC2222d979b0a17ce9C72A4feEB",
+  "timestamp": "2025-07-30T07:06:47.968Z"
+}
