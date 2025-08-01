@@ -3,76 +3,47 @@ import { ExecutorOptionType } from '@layerzerolabs/lz-v2-utilities';
 import { TwoWayConfig, generateConnectionsConfig } from '@layerzerolabs/metadata-tools';
 import { OAppEnforcedOption, OmniPointHardhat } from '@layerzerolabs/toolbox-hardhat';
 
-// Define CustomStablecoinOFT contract deployments for each network
-const ethereumStablecoin: OmniPointHardhat = {
-  eid: EndpointId.SEPOLIA_V2_TESTNET,
-  contractName: 'CustomStablecoinOFT',
-};
+// Define CustomStablecoinOFT contract deployments for ONLY deployed networks
+// const arbitrumStablecoin: OmniPointHardhat = {
+//   eid: EndpointId.ARBSEP_V2_TESTNET,
+//   contractName: 'CustomStablecoinOFT',
+//   address: '0x2520342A8e02D4782dCe3Db0e579Fff965D873C2',
+// };
 
-const arbitrumStablecoin: OmniPointHardhat = {
-  eid: EndpointId.ARBSEP_V2_TESTNET,
+const holeskyStablecoin: OmniPointHardhat = {
+  eid: 40217,
   contractName: 'CustomStablecoinOFT',
+  address: '0x0a44Dc381949F6128Ca0615B4c68F0D15818dE74', // Update with actual base sepolia address
 };
 
 const avalancheStablecoin: OmniPointHardhat = {
-  eid: EndpointId.AVALANCHE_V2_TESTNET,
+  eid: 40106,
   contractName: 'CustomStablecoinOFT',
+  address: '0x55C192C8bF6749F65dE78E524273A481C4b1f667',
 };
 
-const optimismStablecoin: OmniPointHardhat = {
-  eid: EndpointId.OPTSEP_V2_TESTNET,
-  contractName: 'CustomStablecoinOFT',
-};
+// Define CrossChainRouter contract deployments for ONLY deployed networks
+// const arbitrumRouter: OmniPointHardhat = {
+//   eid: EndpointId.ARBSEP_V2_TESTNET,
+//   contractName: 'CrossChainRouter',
+//   address: '0x8C17e97049D74d9AB75BB966ef045f83c52D0b27',
+// };
 
-const bscStablecoin: OmniPointHardhat = {
-  eid: EndpointId.BSC_V2_TESTNET,
-  contractName: 'CustomStablecoinOFT',
-};
-
-const baseStablecoin: OmniPointHardhat = {
-  eid: EndpointId.BASESEP_V2_TESTNET,
-  contractName: 'CustomStablecoinOFT',
-};
-
-const polygonStablecoin: OmniPointHardhat = {
-  eid: EndpointId.AMOY_V2_TESTNET,
-  contractName: 'CustomStablecoinOFT',
-};
-
-// Define CrossChainRouter contract deployments for each network
-const ethereumRouter: OmniPointHardhat = {
-  eid: EndpointId.SEPOLIA_V2_TESTNET,
+// const baseRouter: OmniPointHardhat = {
+//   eid: EndpointId.BASESEP_V2_TESTNET,
+//   contractName: 'CrossChainRouter',
+//   address: '0x111087Fd5862966b9cbD37fD70420E07Bee91994', // Update with actual base sepolia address
+// };
+const holeskyRouter: OmniPointHardhat = {
+  eid: 40217,
   contractName: 'CrossChainRouter',
-};
-
-const arbitrumRouter: OmniPointHardhat = {
-  eid: EndpointId.ARBSEP_V2_TESTNET,
-  contractName: 'CrossChainRouter',
+  address: '0xC411824F1695feeC0f9b8C3d4810c2FD1AB1000a', // Update with actual holesky address
 };
 
 const avalancheRouter: OmniPointHardhat = {
-  eid: EndpointId.AVALANCHE_V2_TESTNET,
+  eid: 40106,
   contractName: 'CrossChainRouter',
-};
-
-const optimismRouter: OmniPointHardhat = {
-  eid: EndpointId.OPTSEP_V2_TESTNET,
-  contractName: 'CrossChainRouter',
-};
-
-const bscRouter: OmniPointHardhat = {
-  eid: EndpointId.BSC_V2_TESTNET,
-  contractName: 'CrossChainRouter',
-};
-
-const baseRouter: OmniPointHardhat = {
-  eid: EndpointId.BASESEP_V2_TESTNET,
-  contractName: 'CrossChainRouter',
-};
-
-const polygonRouter: OmniPointHardhat = {
-  eid: EndpointId.AMOY_V2_TESTNET,
-  contractName: 'CrossChainRouter',
+  address: '0x9F577e8A1be3ec65BE0fb139425988dfE438196e',
 };
 
 // Configure enforced options for OFT transfers (msg type 1)
@@ -85,334 +56,35 @@ const OFT_ENFORCED_OPTIONS: OAppEnforcedOption[] = [
   },
 ];
 
-// Configure enforced options for Compose messages (msg type 2)
-const COMPOSE_ENFORCED_OPTIONS: OAppEnforcedOption[] = [
+// Configure enforced options for CrossChainRouter messages (msg type 1)
+const ROUTER_ENFORCED_OPTIONS: OAppEnforcedOption[] = [
   {
-    msgType: 1, // OFT transfer that triggers compose
+    msgType: 1, // CrossChain swap message
     optionType: ExecutorOptionType.LZ_RECEIVE,
-    gas: 200000, // Gas for OFT _lzReceive
+    gas: 500000, // Gas for CrossChainRouter _lzReceive (includes DEX swap)
     value: 0,
-  },
-  {
-    msgType: 2, // Compose message
-    optionType: ExecutorOptionType.COMPOSE,
-    gas: 500000, // Gas for lzCompose execution (includes DEX swap)
-    value: 0,
-    index: 0, // First compose message
   },
 ];
 
-// Define the pathways for OFT transfers (all chains connected to all other chains)
+// Define the pathways for OFT transfers (only between deployed networks)
 const oftPathways: TwoWayConfig[] = [
-  // Ethereum connections
   [
-    ethereumStablecoin,
-    arbitrumStablecoin,
+    holeskyStablecoin,
+    avalancheStablecoin,
     [['LayerZero Labs'], []], // [requiredDVNs, [optionalDVNs, threshold]]
     [1, 1], // [source to dest confirmations, dest to source confirmations]
     [OFT_ENFORCED_OPTIONS, OFT_ENFORCED_OPTIONS],
   ],
-  [
-    ethereumStablecoin,
-    avalancheStablecoin,
-    [['LayerZero Labs'], []],
-    [1, 1],
-    [OFT_ENFORCED_OPTIONS, OFT_ENFORCED_OPTIONS],
-  ],
-  [
-    ethereumStablecoin,
-    optimismStablecoin,
-    [['LayerZero Labs'], []],
-    [1, 1],
-    [OFT_ENFORCED_OPTIONS, OFT_ENFORCED_OPTIONS],
-  ],
-  [
-    ethereumStablecoin,
-    bscStablecoin,
-    [['LayerZero Labs'], []],
-    [1, 1],
-    [OFT_ENFORCED_OPTIONS, OFT_ENFORCED_OPTIONS],
-  ],
-  [
-    ethereumStablecoin,
-    baseStablecoin,
-    [['LayerZero Labs'], []],
-    [1, 1],
-    [OFT_ENFORCED_OPTIONS, OFT_ENFORCED_OPTIONS],
-  ],
-  [
-    ethereumStablecoin,
-    polygonStablecoin,
-    [['LayerZero Labs'], []],
-    [1, 1],
-    [OFT_ENFORCED_OPTIONS, OFT_ENFORCED_OPTIONS],
-  ],
-  
-  // Arbitrum connections (excluding Ethereum - already covered)
-  [
-    arbitrumStablecoin,
-    avalancheStablecoin,
-    [['LayerZero Labs'], []],
-    [1, 1],
-    [OFT_ENFORCED_OPTIONS, OFT_ENFORCED_OPTIONS],
-  ],
-  [
-    arbitrumStablecoin,
-    optimismStablecoin,
-    [['LayerZero Labs'], []],
-    [1, 1],
-    [OFT_ENFORCED_OPTIONS, OFT_ENFORCED_OPTIONS],
-  ],
-  [
-    arbitrumStablecoin,
-    bscStablecoin,
-    [['LayerZero Labs'], []],
-    [1, 1],
-    [OFT_ENFORCED_OPTIONS, OFT_ENFORCED_OPTIONS],
-  ],
-  [
-    arbitrumStablecoin,
-    baseStablecoin,
-    [['LayerZero Labs'], []],
-    [1, 1],
-    [OFT_ENFORCED_OPTIONS, OFT_ENFORCED_OPTIONS],
-  ],
-  [
-    arbitrumStablecoin,
-    polygonStablecoin,
-    [['LayerZero Labs'], []],
-    [1, 1],
-    [OFT_ENFORCED_OPTIONS, OFT_ENFORCED_OPTIONS],
-  ],
-  
-  // Avalanche connections (excluding previous - already covered)
-  [
-    avalancheStablecoin,
-    optimismStablecoin,
-    [['LayerZero Labs'], []],
-    [1, 1],
-    [OFT_ENFORCED_OPTIONS, OFT_ENFORCED_OPTIONS],
-  ],
-  [
-    avalancheStablecoin,
-    bscStablecoin,
-    [['LayerZero Labs'], []],
-    [1, 1],
-    [OFT_ENFORCED_OPTIONS, OFT_ENFORCED_OPTIONS],
-  ],
-  [
-    avalancheStablecoin,
-    baseStablecoin,
-    [['LayerZero Labs'], []],
-    [1, 1],
-    [OFT_ENFORCED_OPTIONS, OFT_ENFORCED_OPTIONS],
-  ],
-  [
-    avalancheStablecoin,
-    polygonStablecoin,
-    [['LayerZero Labs'], []],
-    [1, 1],
-    [OFT_ENFORCED_OPTIONS, OFT_ENFORCED_OPTIONS],
-  ],
-  
-  // Optimism connections (excluding previous - already covered)
-  [
-    optimismStablecoin,
-    bscStablecoin,
-    [['LayerZero Labs'], []],
-    [1, 1],
-    [OFT_ENFORCED_OPTIONS, OFT_ENFORCED_OPTIONS],
-  ],
-  [
-    optimismStablecoin,
-    baseStablecoin,
-    [['LayerZero Labs'], []],
-    [1, 1],
-    [OFT_ENFORCED_OPTIONS, OFT_ENFORCED_OPTIONS],
-  ],
-  [
-    optimismStablecoin,
-    polygonStablecoin,
-    [['LayerZero Labs'], []],
-    [1, 1],
-    [OFT_ENFORCED_OPTIONS, OFT_ENFORCED_OPTIONS],
-  ],
-  
-  // BSC connections (excluding previous - already covered)
-  [
-    bscStablecoin,
-    baseStablecoin,
-    [['LayerZero Labs'], []],
-    [1, 1],
-    [OFT_ENFORCED_OPTIONS, OFT_ENFORCED_OPTIONS],
-  ],
-  [
-    bscStablecoin,
-    polygonStablecoin,
-    [['LayerZero Labs'], []],
-    [1, 1],
-    [OFT_ENFORCED_OPTIONS, OFT_ENFORCED_OPTIONS],
-  ],
-  
-  // Base connections (excluding previous - already covered)
-  [
-    baseStablecoin,
-    polygonStablecoin,
-    [['LayerZero Labs'], []],
-    [1, 1],
-    [OFT_ENFORCED_OPTIONS, OFT_ENFORCED_OPTIONS],
-  ],
 ];
 
-// Define pathways for CrossChainRouter (compose functionality)
+// Define pathways for CrossChainRouter (only between deployed networks)
 const routerPathways: TwoWayConfig[] = [
-  // Router connections for cross-chain swaps with compose
   [
-    ethereumRouter,
-    arbitrumRouter,
-    [['LayerZero Labs'], []],
-    [1, 1],
-    [COMPOSE_ENFORCED_OPTIONS, COMPOSE_ENFORCED_OPTIONS],
-  ],
-  [
-    ethereumRouter,
+    holeskyRouter,
     avalancheRouter,
     [['LayerZero Labs'], []],
     [1, 1],
-    [COMPOSE_ENFORCED_OPTIONS, COMPOSE_ENFORCED_OPTIONS],
-  ],
-  [
-    ethereumRouter,
-    optimismRouter,
-    [['LayerZero Labs'], []],
-    [1, 1],
-    [COMPOSE_ENFORCED_OPTIONS, COMPOSE_ENFORCED_OPTIONS],
-  ],
-  [
-    ethereumRouter,
-    bscRouter,
-    [['LayerZero Labs'], []],
-    [1, 1],
-    [COMPOSE_ENFORCED_OPTIONS, COMPOSE_ENFORCED_OPTIONS],
-  ],
-  [
-    ethereumRouter,
-    baseRouter,
-    [['LayerZero Labs'], []],
-    [1, 1],
-    [COMPOSE_ENFORCED_OPTIONS, COMPOSE_ENFORCED_OPTIONS],
-  ],
-  [
-    ethereumRouter,
-    polygonRouter,
-    [['LayerZero Labs'], []],
-    [1, 1],
-    [COMPOSE_ENFORCED_OPTIONS, COMPOSE_ENFORCED_OPTIONS],
-  ],
-  [
-    arbitrumRouter,
-    avalancheRouter,
-    [['LayerZero Labs'], []],
-    [1, 1],
-    [COMPOSE_ENFORCED_OPTIONS, COMPOSE_ENFORCED_OPTIONS],
-  ],
-  [
-    arbitrumRouter,
-    optimismRouter,
-    [['LayerZero Labs'], []],
-    [1, 1],
-    [COMPOSE_ENFORCED_OPTIONS, COMPOSE_ENFORCED_OPTIONS],
-  ],
-  [
-    arbitrumRouter,
-    bscRouter,
-    [['LayerZero Labs'], []],
-    [1, 1],
-    [COMPOSE_ENFORCED_OPTIONS, COMPOSE_ENFORCED_OPTIONS],
-  ],
-  [
-    arbitrumRouter,
-    baseRouter,
-    [['LayerZero Labs'], []],
-    [1, 1],
-    [COMPOSE_ENFORCED_OPTIONS, COMPOSE_ENFORCED_OPTIONS],
-  ],
-  [
-    arbitrumRouter,
-    polygonRouter,
-    [['LayerZero Labs'], []],
-    [1, 1],
-    [COMPOSE_ENFORCED_OPTIONS, COMPOSE_ENFORCED_OPTIONS],
-  ],
-  [
-    avalancheRouter,
-    optimismRouter,
-    [['LayerZero Labs'], []],
-    [1, 1],
-    [COMPOSE_ENFORCED_OPTIONS, COMPOSE_ENFORCED_OPTIONS],
-  ],
-  [
-    avalancheRouter,
-    bscRouter,
-    [['LayerZero Labs'], []],
-    [1, 1],
-    [COMPOSE_ENFORCED_OPTIONS, COMPOSE_ENFORCED_OPTIONS],
-  ],
-  [
-    avalancheRouter,
-    baseRouter,
-    [['LayerZero Labs'], []],
-    [1, 1],
-    [COMPOSE_ENFORCED_OPTIONS, COMPOSE_ENFORCED_OPTIONS],
-  ],
-  [
-    avalancheRouter,
-    polygonRouter,
-    [['LayerZero Labs'], []],
-    [1, 1],
-    [COMPOSE_ENFORCED_OPTIONS, COMPOSE_ENFORCED_OPTIONS],
-  ],
-  [
-    optimismRouter,
-    bscRouter,
-    [['LayerZero Labs'], []],
-    [1, 1],
-    [COMPOSE_ENFORCED_OPTIONS, COMPOSE_ENFORCED_OPTIONS],
-  ],
-  [
-    optimismRouter,
-    baseRouter,
-    [['LayerZero Labs'], []],
-    [1, 1],
-    [COMPOSE_ENFORCED_OPTIONS, COMPOSE_ENFORCED_OPTIONS],
-  ],
-  [
-    optimismRouter,
-    polygonRouter,
-    [['LayerZero Labs'], []],
-    [1, 1],
-    [COMPOSE_ENFORCED_OPTIONS, COMPOSE_ENFORCED_OPTIONS],
-  ],
-  [
-    bscRouter,
-    baseRouter,
-    [['LayerZero Labs'], []],
-    [1, 1],
-    [COMPOSE_ENFORCED_OPTIONS, COMPOSE_ENFORCED_OPTIONS],
-  ],
-  [
-    bscRouter,
-    polygonRouter,
-    [['LayerZero Labs'], []],
-    [1, 1],
-    [COMPOSE_ENFORCED_OPTIONS, COMPOSE_ENFORCED_OPTIONS],
-  ],
-  [
-    baseRouter,
-    polygonRouter,
-    [['LayerZero Labs'], []],
-    [1, 1],
-    [COMPOSE_ENFORCED_OPTIONS, COMPOSE_ENFORCED_OPTIONS],
+    [ROUTER_ENFORCED_OPTIONS, ROUTER_ENFORCED_OPTIONS],
   ],
 ];
 
@@ -425,23 +97,13 @@ export default async function () {
   
   return {
     contracts: [
-      // OFT contracts
-      { contract: ethereumStablecoin },
-      { contract: arbitrumStablecoin },
+      // OFT contracts (only deployed networks)
+      { contract: holeskyStablecoin },
       { contract: avalancheStablecoin },
-      { contract: optimismStablecoin },
-      { contract: bscStablecoin },
-      { contract: baseStablecoin },
-      { contract: polygonStablecoin },
       
-      // Router contracts
-      { contract: ethereumRouter },
-      { contract: arbitrumRouter },
+      // Router contracts (only deployed networks)
+      { contract: holeskyRouter },
       { contract: avalancheRouter },
-      { contract: optimismRouter },
-      { contract: bscRouter },
-      { contract: baseRouter },
-      { contract: polygonRouter },
     ],
     connections,
   };

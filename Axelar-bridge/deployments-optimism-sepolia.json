@@ -1,0 +1,14 @@
+{
+  "network": "optimism-sepolia",
+  "deployer": "0x49f51e3C94B459677c3B1e611DB3E44d4E6b1D55",
+  "contracts": {
+    "customStableCoin": "0x0EBcFE9Fc5817DD541B2EAdc1e8fe92D35bc2470",
+    "flexibleAxelarRouter": "0xA6AAf9c0b2d3b129a9616eF976aF7478e9A13c1E"
+  },
+  "axelar": {
+    "gateway": "0xe432150cce91c13a887f7D836923d5597adD8E31",
+    "gasService": "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6"
+  },
+  "dexRouter": "0x3DfCfA2730f768cf4cf931f4896109ffa9c3e202",
+  "timestamp": "2025-07-30T10:12:20.641Z"
+}

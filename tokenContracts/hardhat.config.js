@@ -6,14 +6,7 @@ require("dotenv").config();
 const accounts = [vars.get("ADMIN_WALLET_PRIVATE_KEY")];
 
 module.exports = {
-  solidity: "0.6.6",
-  settings: {
-    optimizer: {
-      enabled: true,
-      runs: 200,
-    },
-    viaIR: true,
-  },
+  solidity: "0.8.28",
   networks: {
     hardhat: {},
     polygonAmoy: {
@@ -60,7 +53,7 @@ module.exports = {
 
   etherscan: {
     // Your single API key for all supported networks
-    apiKey: process.env.ETHERSCAN_API_KEY,
+    apiKey: "K675NHYZWXFM8BBCRA6GG8C4AIVE4TF7JK",
     // Add the custom chain definition for Optimism Sepolia
     customChains: [
       {

@@ -1,0 +1,14 @@
+{
+  "network": "arbitrum-sepolia",
+  "deployer": "0x49f51e3C94B459677c3B1e611DB3E44d4E6b1D55",
+  "contracts": {
+    "customStableCoin": "0x4681a2Fe662E31B519fEa2D938ea4F789b459c2c",
+    "flexibleAxelarRouter": "0xa12b0665d786b93e91be37A971775b6a3EeC9277"
+  },
+  "axelar": {
+    "gateway": "0xe432150cce91c13a887f7D836923d5597adD8E31",
+    "gasService": "0x2d5d7d31F671F86C782533cc367F14109a082712"
+  },
+  "dexRouter": "0xC5e1362cC4768A10331f77DDe46572f54802e142",
+  "timestamp": "2025-07-30T09:39:49.489Z"
+}

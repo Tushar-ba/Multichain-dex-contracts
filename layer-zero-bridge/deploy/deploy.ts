@@ -2,33 +2,22 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { DeployFunction } from 'hardhat-deploy/types';
 
 const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-    const { deployments, getNamedAccounts, network } = hre;
+    const { deployments, getNamedAccounts, network, run } = hre;
     const { deploy } = deployments;
     const { deployer } = await getNamedAccounts();
 
-    // LayerZero V2 Endpoint addresses for testnets
+    // LayerZero V2 Endpoint addresses
     const lzEndpoints: { [key: string]: string } = {
-        'ethereum-sepolia': '0x6EDCE65403992e310A62460808c4b910D972f10f',
-        'arbitrum-sepolia-testnet': '0x6EDCE65403992e310A62460808c4b910D972f10f',
-        'optimism-sepolia-testnet': '0x6EDCE65403992e310A62460808c4b910D972f10f',
+        'holesky': '0x6EDCE65403992e310A62460808c4b910D972f10f',
         'avalanche-fuji-testnet': '0x6EDCE65403992e310A62460808c4b910D972f10f',
-        'bsc-testnet': '0x6EDCE65403992e310A62460808c4b910D972f10f',
-        'base-sepolia': '0x6EDCE65403992e310A62460808c4b910D972f10f',
-        'polygon-amoy': '0x6EDCE65403992e310A62460808c4b910D972f10f',
     };
 
-    // PayfundsRouter02 addresses (replace with actual deployed addresses)
+    // PayfundsRouter02 addresses
     const dexRouters: { [key: string]: string } = {
-        'ethereum-sepolia': '0xC235d41016435B1034aeC94f9de17a78d9dA7028', // Replace with actual
-        'arbitrum-sepolia-testnet': '0xA9a558fB3269F307eE57270b41fcBaFFC56d5290', // Replace with actual
-        'optimism-sepolia-testnet': '0x3DfCfA2730f768cf4cf931f4896109ffa9c3e202', // Replace with actual
-        'avalanche-fuji-testnet': '0x011b561002A1D2522210BA3d687131AB1F6AcF79', // Replace with actual
-        'bsc-testnet': '0x78069aF1280A73D240cCDF16Ab4a483555246665', // Replace with actual
-        'base-sepolia': '0xC3b415C823366DC2222d979b0a17ce9C72A4feEB', // Replace with actual
-        'polygon-amoy': '0xa5812cE58B6Cb897b9B02ED1bAA1f9AC01D4F67e', // Replace with actual
-        'holesky': '0x1F2Ea7012Be2Fb0Ba2ce8B7B2A1ab3357Ab2315d', // Replace with actual
+        'holesky': '0x1F2Ea7012Be2Fb0Ba2ce8B7B2A1ab3357Ab2315d',
+        'avalanche-fuji-testnet': '0x011b561002A1D2522210BA3d687131AB1F6AcF79',
     };
-
+    
     const lzEndpoint = lzEndpoints[network.name];
     const dexRouter = dexRouters[network.name];
 
@@ -37,53 +26,93 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     }
 
     if (!dexRouter || dexRouter === '0x0000000000000000000000000000000000000000') {
-        throw new Error(`DEX router not configured for network: ${network.name}. Please update the dexRouters mapping.`);
+        throw new Error(`DEX router not configured for network: ${network.name}`);
     }
+
+    // Helper function to verify contracts
+    const verifyContract = async (contractAddress: string, constructorArguments: any[], contractName: string) => {
+        try {
+            await run("verify:verify", {
+                address: contractAddress,
+                constructorArguments: constructorArguments,
+            });
+            console.log(`✅ ${contractName} verified successfully!`);
+        } catch (error: any) {
+            if (error.message.toLowerCase().includes("already verified")) {
+                console.log(`ℹ️  ${contractName} is already verified`);
+            } else {
+                console.error(`❌ Error verifying ${contractName}:`, error.message);
+            }
+        }
+    };
     
-    // Deploy CustomStablecoinOFT first - using standard OFT constructor
+    // Deploy CustomStablecoinOFT
+    const stablecoinOFTArgs = [
+        'Payfunds USD',
+        'PFUSD',
+        lzEndpoint,
+        deployer
+    ];
+
     const stablecoinOFT = await deploy('CustomStablecoinOFT', {
         from: deployer,
-        args: [
-            'Payfunds USD',  // name
-            'PFUSD',         // symbol
-            lzEndpoint,      // LayerZero endpoint
-            deployer         // owner
-        ],
+        args: stablecoinOFTArgs,
         log: true,
-        waitConfirmations: 1,
+        waitConfirmations: 3,
+        deterministicDeployment: false,
+        skipIfAlreadyDeployed: false,
     });
 
-    console.log(`✅ CustomStablecoinOFT deployed on ${network.name}:`);
-    console.log(`   Address: ${stablecoinOFT.address}`);
-    console.log(`   Transaction: ${stablecoinOFT.transactionHash}`);
-    console.log('');
+    // Deploy SimpleCrossChainRouter
+    const crossChainRouterArgs = [
+        lzEndpoint,
+        deployer,
+        dexRouter,
+        stablecoinOFT.address, // Pass stablecoin address directly
+    ];
 
-    // Deploy CrossChainRouter
-    const crossChainRouter = await deploy('CrossChainRouter', {
+    const crossChainRouter = await deploy('SimpleCrossChainRouter', {
         from: deployer,
-        args: [
-            lzEndpoint,
-            deployer,
-            dexRouter,
-            stablecoinOFT.address,
-        ],
+        args: crossChainRouterArgs,
         log: true,
-        waitConfirmations: 1,
+        waitConfirmations: 3,
+        deterministicDeployment: false,
+        skipIfAlreadyDeployed: false,
     });
 
-    console.log(`✅ CrossChainRouter deployed on ${network.name}:`);
-    console.log(`   Address: ${crossChainRouter.address}`);
-    console.log(`   Transaction: ${crossChainRouter.transactionHash}`);
-    console.log('');
+    // Verify contracts on block explorers
+    const shouldVerify = !['hardhat', 'localhost'].includes(network.name);
     
-    console.log(`🎉 Deployment Summary for ${network.name}:`);
+    if (shouldVerify) {
+        console.log('\n⏳ Waiting for contracts to be indexed...');
+        await new Promise(resolve => setTimeout(resolve, 10000));
+
+        await verifyContract(stablecoinOFT.address, stablecoinOFTArgs, 'CustomStablecoinOFT');
+        await verifyContract(crossChainRouter.address, crossChainRouterArgs, 'SimpleCrossChainRouter');
+    }
+
+    // Display deployment summary
+    console.log(`\n🎉 Deployment Summary for ${network.name}:`);
     console.log(`   CustomStablecoinOFT: ${stablecoinOFT.address}`);
-    console.log(`   CrossChainRouter: ${crossChainRouter.address}`);
+    console.log(`   SimpleCrossChainRouter: ${crossChainRouter.address}`);
     console.log(`   LayerZero Endpoint: ${lzEndpoint}`);
     console.log(`   DEX Router: ${dexRouter}`);
-    console.log('─'.repeat(80));
+    
+    if (shouldVerify) {
+        const explorerUrls: { [key: string]: string } = {
+            'holesky': 'https://holesky.etherscan.io/address/',
+            'avalanche-fuji-testnet': 'https://testnet.snowtrace.io/address/',
+        };
+        
+        const explorerBaseUrl = explorerUrls[network.name];
+        if (explorerBaseUrl) {
+            console.log(`\n🔗 View on block explorer:`);
+            console.log(`   CustomStablecoinOFT: ${explorerBaseUrl}${stablecoinOFT.address}`);
+            console.log(`   SimpleCrossChainRouter: ${explorerBaseUrl}${crossChainRouter.address}`);
+        }
+    }
 };
 
-deployFunction.tags = ['CrossChainRouter', 'CustomStablecoinOFT'];
+deployFunction.tags = ['SimpleCrossChainRouter', 'CustomStablecoinOFT'];
 
 export default deployFunction;
