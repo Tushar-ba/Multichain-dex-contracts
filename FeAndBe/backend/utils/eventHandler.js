@@ -117,19 +117,27 @@ const eventHandler = {
   // Handle addLiquidity from PayfundsRouter02
   handleAddLiquidity: async (eventData) => {
     try {
+      console.log('Received eventData:', JSON.stringify(eventData, null, 2)); // Debug log
+      
+      // Validate required fields first
+      if (!eventData.transactionHash) {
+        throw new Error('Transaction hash is required');
+      }
+      if (!eventData.userAddress) {
+        throw new Error('User address is required');
+      }
+      if (!eventData.pairAddress) {
+        throw new Error('Pair address is required');
+      }
+      
       const {
         transactionHash,
         chainId,
         routerAddress,
         userAddress,
+        action,
         tokenA,
         tokenB,
-        amountADesired,
-        amountBDesired,
-        amountAMin,
-        amountBMin,
-        actualAmountA,
-        actualAmountB,
         liquidity,
         pairAddress,
         to,
@@ -137,36 +145,46 @@ const eventHandler = {
         blockNumber,
         blockTimestamp,
         gasUsed,
-        gasPrice
+        gasPrice,
+        status
       } = eventData;
+
+      // Handle the case where tokenA and tokenB are objects (from frontend)
+      const tokenAData = typeof tokenA === 'object' ? tokenA : { address: tokenA };
+      const tokenBData = typeof tokenB === 'object' ? tokenB : { address: tokenB };
 
       const lp = new LiquidityProvider({
         transactionHash,
         chainId,
-        routerAddress: routerAddress.toLowerCase(),
+        routerAddress: typeof routerAddress === 'string' ? routerAddress.toLowerCase() : routerAddress,
         userAddress: userAddress.toLowerCase(),
-        action: 'add',
+        action: action || 'add',
         tokenA: {
-          address: tokenA.toLowerCase(),
-          amountDesired: amountADesired,
-          amountMin: amountAMin,
-          actualAmount: actualAmountA
+          address: tokenAData.address.toLowerCase(),
+          symbol: tokenAData.symbol || '',
+          decimals: tokenAData.decimals || 18,
+          amountDesired: tokenAData.amountDesired || '0',
+          amountMin: tokenAData.amountMin || '0',
+          actualAmount: tokenAData.actualAmount || tokenAData.amountDesired || '0'
         },
         tokenB: {
-          address: tokenB.toLowerCase(),
-          amountDesired: amountBDesired,
-          amountMin: amountBMin,
-          actualAmount: actualAmountB
+          address: tokenBData.address.toLowerCase(),
+          symbol: tokenBData.symbol || '',
+          decimals: tokenBData.decimals || 18,
+          amountDesired: tokenBData.amountDesired || '0',
+          amountMin: tokenBData.amountMin || '0',
+          actualAmount: tokenBData.actualAmount || tokenBData.amountDesired || '0'
         },
-        liquidity,
+        liquidity: liquidity || '0',
         pairAddress: pairAddress.toLowerCase(),
         to: to.toLowerCase(),
         deadline,
         blockNumber,
-        blockTimestamp: new Date(blockTimestamp * 1000),
-        gasUsed,
-        gasPrice,
-        status: 'confirmed'
+        blockTimestamp: blockTimestamp instanceof Date ? blockTimestamp : 
+                      (typeof blockTimestamp === 'number' ? new Date(blockTimestamp * 1000) : new Date()),
+        gasUsed: gasUsed || '0',
+        gasPrice: gasPrice || '0',
+        status: status || 'confirmed'
       });
 
       await lp.save();
@@ -185,47 +203,53 @@ const eventHandler = {
         chainId,
         routerAddress,
         userAddress,
+        action,
         tokenA,
         tokenB,
         liquidity,
-        amountAMin,
-        amountBMin,
-        actualAmountA,
-        actualAmountB,
         pairAddress,
         to,
         deadline,
         blockNumber,
         blockTimestamp,
         gasUsed,
-        gasPrice
+        gasPrice,
+        status
       } = eventData;
+
+      // Handle the case where tokenA and tokenB are objects (from frontend)
+      const tokenAData = typeof tokenA === 'object' ? tokenA : { address: tokenA };
+      const tokenBData = typeof tokenB === 'object' ? tokenB : { address: tokenB };
 
       const lp = new LiquidityProvider({
         transactionHash,
         chainId,
-        routerAddress: routerAddress.toLowerCase(),
+        routerAddress: typeof routerAddress === 'string' ? routerAddress.toLowerCase() : routerAddress,
         userAddress: userAddress.toLowerCase(),
-        action: 'remove',
+        action: action || 'remove',
         tokenA: {
-          address: tokenA.toLowerCase(),
-          amountMin: amountAMin,
-          actualAmount: actualAmountA
+          address: tokenAData.address.toLowerCase(),
+          symbol: tokenAData.symbol || '',
+          decimals: tokenAData.decimals || 18,
+          amountMin: tokenAData.amountMin || '0',
+          actualAmount: tokenAData.actualAmount || '0'
         },
         tokenB: {
-          address: tokenB.toLowerCase(),
-          amountMin: amountBMin,
-          actualAmount: actualAmountB
+          address: tokenBData.address.toLowerCase(),
+          symbol: tokenBData.symbol || '',
+          decimals: tokenBData.decimals || 18,
+          amountMin: tokenBData.amountMin || '0',
+          actualAmount: tokenBData.actualAmount || '0'
         },
-        liquidity,
+        liquidity: liquidity || '0',
         pairAddress: pairAddress.toLowerCase(),
         to: to.toLowerCase(),
         deadline,
         blockNumber,
-        blockTimestamp: new Date(blockTimestamp * 1000),
-        gasUsed,
-        gasPrice,
-        status: 'confirmed'
+        blockTimestamp: blockTimestamp instanceof Date ? blockTimestamp : new Date(blockTimestamp * 1000),
+        gasUsed: gasUsed || '0',
+        gasPrice: gasPrice || '0',
+        status: status || 'confirmed'
       });
 
       await lp.save();

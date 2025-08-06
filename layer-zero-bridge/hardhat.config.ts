@@ -26,11 +26,11 @@ const config: HardhatUserConfig = {
   },
   networks: {
     // Existing testnets
-    // 'arbitrum-sepolia-testnet': {
-    //     eid: EndpointId.ARBSEP_V2_TESTNET,
-    //     url: 'https://arbitrum-sepolia.gateway.tenderly.co',
-    //     accounts: accounts ? [accounts] : [],
-    // },
+    'arbitrum-sepolia-testnet': {
+        eid: EndpointId.ARBSEP_V2_TESTNET,
+        url: 'https://arbitrum-sepolia.gateway.tenderly.co',
+        accounts: accounts ? [accounts] : [],
+    },
     'holesky': {
         eid: EndpointId.HOLESKY_V2_TESTNET,
         url: 'https://holesky.drpc.org',
@@ -41,37 +41,43 @@ const config: HardhatUserConfig = {
         url: 'https://avalanche-fuji.drpc.org',
         accounts: accounts ? [accounts] : [],
     },
-    // 'optimism-sepolia-testnet': {
-    //     eid: EndpointId.OPTSEP_V2_TESTNET,
-    //     url: 'https://optimism-sepolia.gateway.tenderly.co',
-    //     accounts: accounts ? [accounts] : [],
-    // },
-    // 'ethereum-sepolia': {
-    //     eid: EndpointId.SEPOLIA_V2_TESTNET,
-    //     url: vars.get("SEPOLIA_RPC_URL", "https://eth-sepolia.g.alchemy.com/v2/Ln0Aa5Ea0iyVV0mh6RpyT"),
-    //     accounts: accounts ? [accounts] : [],
-    // },
-    // 'bsc-testnet': {
-    //     eid: EndpointId.BSC_V2_TESTNET,
-    //     url: 'https://data-seed-prebsc-1-s1.binance.org:8545',
-    //     accounts: accounts ? [accounts] : [],
-    // },
-    // 'base-sepolia': {
-    //     eid: EndpointId.BASESEP_V2_TESTNET,
-    //     url: 'https://sepolia.base.org',
-    //     accounts: accounts ? [accounts] : [],
-    // },
-    // 'polygon-amoy': {
-    //     eid: EndpointId.AMOY_V2_TESTNET,
-    //     url: 'https://rpc-amoy.polygon.technology',
-    //     accounts: accounts ? [accounts] : [],
-    // },
+    'optimism-sepolia-testnet': {
+        eid: EndpointId.OPTSEP_V2_TESTNET,
+        url: 'https://optimism-sepolia.gateway.tenderly.co',
+        accounts: accounts ? [accounts] : [],
+    },
+    'ethereum-sepolia': {
+        eid: EndpointId.SEPOLIA_V2_TESTNET,
+        url: vars.get("SEPOLIA_RPC_URL", "https://eth-sepolia.g.alchemy.com/v2/Ln0Aa5Ea0iyVV0mh6RpyT"),
+        accounts: accounts ? [accounts] : [],
+    },
+    'bsc-testnet': {
+        eid: EndpointId.BSC_V2_TESTNET,
+        url: 'https://data-seed-prebsc-1-s1.binance.org:8545',
+        accounts: accounts ? [accounts] : [],
+    },
+    'base-sepolia': {
+        eid: EndpointId.BASESEP_V2_TESTNET,
+        url: 'https://sepolia.base.org',
+        accounts: accounts ? [accounts] : [],
+    },
+    'polygon-amoy': {
+        eid: EndpointId.AMOY_V2_TESTNET,
+        url: 'https://rpc-amoy.polygon.technology',
+        accounts: accounts ? [accounts] : [],
+    },
   },
   etherscan: {
     // Your single API key for all supported networks
     apiKey: {
     holesky: "K675NHYZWXFM8BBCRA6GG8C4AIVE4TF7JK",
     avalancheFujiTestnet: "K675NHYZWXFM8BBCRA6GG8C4AIVE4TF7JK",
+    optimismSepolia: "K675NHYZWXFM8BBCRA6GG8C4AIVE4TF7JK",
+    baseSepolia: "K675NHYZWXFM8BBCRA6GG8C4AIVE4TF7JK",
+    polygonAmoy: "K675NHYZWXFM8BBCRA6GG8C4AIVE4TF7JK",
+    arbitrumSepolia: "K675NHYZWXFM8BBCRA6GG8C4AIVE4TF7JK",
+    sepolia: "K675NHYZWXFM8BBCRA6GG8C4AIVE4TF7JK",
+    bscTestnet: "K675NHYZWXFM8BBCRA6GG8C4AIVE4TF7JK",
   },
     // Add the custom chain definition for Optimism Sepolia
     customChains: [

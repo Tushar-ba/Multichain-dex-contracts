@@ -77,6 +77,17 @@ const tokens = [
             chainId: 11155111
         }
     },
+    {
+        address: '0xDE44975f2060d977Dd7c7B93C7d7aFec8fFcb1a2',
+        data: {
+            name: 'PF Stable Coin',
+            symbol: 'PFUSD',
+            uri: 'https://via.placeholder.com/64x64/4F46E5/FFFFFF?text=PF',
+            decimals: 18,
+            chain: "Sepolia",
+            chainId: 11155111
+        }
+    },
 
     // Polygon Amoy Tokens (Chain ID: 80002)
     {
@@ -151,6 +162,17 @@ const tokens = [
             name: 'Dogecoin',
             symbol: 'DOGE',
             uri: 'https://raw.githubusercontent.com/Tushar-ba/metadata/main/dogecoin-doge-logo.png',
+            decimals: 18,
+            chain: "Polygon Amoy",
+            chainId: 80002
+        }
+    },
+    {
+        address: '0x91735d81732902Cb2a80Dcffc2188592B4031226',
+        data: {
+            name: 'PF Stable Coin',
+            symbol: 'PFUSD',
+            uri: 'https://via.placeholder.com/64x64/4F46E5/FFFFFF?text=PF',
             decimals: 18,
             chain: "Polygon Amoy",
             chainId: 80002
@@ -235,6 +257,17 @@ const tokens = [
             chainId: 421614
         }
     },
+    {
+        address: '0xCE24E5cA05FDD47D8629465978Ff887091556929',
+        data: {
+            name: 'PF Stable Coin',
+            symbol: 'PFUSD',
+            uri: 'https://via.placeholder.com/64x64/4F46E5/FFFFFF?text=PF',
+            decimals: 18,
+            chain: "Arbitrum Sepolia",
+            chainId: 421614
+        }
+    },
 
     // BSC Testnet Tokens (Chain ID: 97)
     {
@@ -309,6 +342,17 @@ const tokens = [
             name: 'Dogecoin',
             symbol: 'DOGE',
             uri: 'https://raw.githubusercontent.com/Tushar-ba/metadata/main/dogecoin-doge-logo.png',
+            decimals: 18,
+            chain: "BSC Testnet",
+            chainId: 97
+        }
+    },
+    {
+        address: '0x2258Db39FCdAB899661fBA6a1246Cc7a0F4E9ff0',
+        data: {
+            name: 'PF Stable Coin',
+            symbol: 'PFUSD',
+            uri: 'https://via.placeholder.com/64x64/4F46E5/FFFFFF?text=PF',
             decimals: 18,
             chain: "BSC Testnet",
             chainId: 97
@@ -393,6 +437,17 @@ const tokens = [
             chainId: 11155420
         }
     },
+    {
+        address: '0xdFA54fa7F1f275ab103D4f0Ad65Bc2Fb239E43f9',
+        data: {
+            name: 'PF Stable Coin',
+            symbol: 'PFUSD',
+            uri: 'https://via.placeholder.com/64x64/4F46E5/FFFFFF?text=PF',
+            decimals: 18,
+            chain: "Optimism Sepolia",
+            chainId: 11155420
+        }
+    },
 
     // Avalanche Fuji Tokens (Chain ID: 43113)
     {
@@ -467,6 +522,17 @@ const tokens = [
             name: 'Dogecoin',
             symbol: 'DOGE',
             uri: 'https://raw.githubusercontent.com/Tushar-ba/metadata/main/dogecoin-doge-logo.png',
+            decimals: 18,
+            chain: "Avalanche Fuji",
+            chainId: 43113
+        }
+    },
+    {
+        address: '0x53CDBE278328314F6208776cBF7Da0a0C2c6Feea',
+        data: {
+            name: 'PF Stable Coin',
+            symbol: 'PFUSD',
+            uri: 'https://via.placeholder.com/64x64/4F46E5/FFFFFF?text=PF',
             decimals: 18,
             chain: "Avalanche Fuji",
             chainId: 43113
@@ -549,6 +615,41 @@ const tokens = [
             decimals: 18,
             chain: "Base Sepolia",
             chainId: 84532
+        }
+    },
+    {
+        address: '0x0E4adEe6aCb907Ef3745AcB3202b8511A6FC6F52',
+        data: {
+            name: 'PF Stable Coin',
+            symbol: 'PFUSD',
+            uri: 'https://via.placeholder.com/64x64/4F46E5/FFFFFF?text=PF',
+            decimals: 18,
+            chain: "Base Sepolia",
+            chainId: 84532
+        }
+    },
+
+    // Holesky Tokens (Chain ID: 17000)
+    {
+        address: '0x0000000000000000000000000000000000000000',
+        data: {
+            name: 'Ethereum',
+            symbol: 'ETH',
+            uri: 'https://raw.githubusercontent.com/Tushar-ba/metadata/refs/heads/main/Ethereum-Logo-PNG-Free-Image.png',
+            decimals: 18,
+            chain: "Holesky",
+            chainId: 17000
+        }
+    },
+    {
+        address: '0xfAe78B00a8e7d9eDd1cCFBa0Ca61be311Ce59C08',
+        data: {
+            name: 'PF Stable Coin',
+            symbol: 'PFUSD',
+            uri: 'https://via.placeholder.com/64x64/4F46E5/FFFFFF?text=PF',
+            decimals: 18,
+            chain: "Holesky",
+            chainId: 17000
         }
     }
 ];

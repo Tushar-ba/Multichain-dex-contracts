@@ -1,0 +1,91 @@
+{
+  "deployments": {
+    "arbitrum-sepolia-testnet": {
+      "chainId": 421614,
+      "networkName": "Arbitrum Sepolia Testnet",
+      "customStablecoinOFT": "0xCE24E5cA05FDD47D8629465978Ff887091556929",
+      "simpleCrossChainRouter": "0x4F8FD373bb8Df6DA0461D220D1D1018AA92b9157",
+      "layerZeroEndpoint": "0x6EDCE65403992e310A62460808c4b910D972f10f",
+      "dexRouter": "0xC5e1362cC4768A10331f77DDe46572f54802e142",
+      "explorer": "https://sepolia.arbiscan.io",
+      "lastUpdated": "2025-08-06T09:31:49.359Z"
+    },
+    "bsc-testnet": {
+      "chainId": 97,
+      "networkName": "BSC Testnet",
+      "customStablecoinOFT": "0x2258Db39FCdAB899661fBA6a1246Cc7a0F4E9ff0",
+      "simpleCrossChainRouter": "0x0EBcFE9Fc5817DD541B2EAdc1e8fe92D35bc2470",
+      "layerZeroEndpoint": "0x6EDCE65403992e310A62460808c4b910D972f10f",
+      "dexRouter": "0x78069aF1280A73D240cCDF16Ab4a483555246665",
+      "explorer": "https://testnet.bscscan.com",
+      "lastUpdated": "2025-08-06T09:31:50.757Z"
+    },
+    "base-sepolia": {
+      "chainId": 84532,
+      "networkName": "Base Sepolia Testnet",
+      "customStablecoinOFT": "0x0E4adEe6aCb907Ef3745AcB3202b8511A6FC6F52",
+      "simpleCrossChainRouter": "0x934b360A75F6AF046F421f9d386c840B4Ad45162",
+      "layerZeroEndpoint": "0x6EDCE65403992e310A62460808c4b910D972f10f",
+      "dexRouter": "0xC3b415C823366DC2222d979b0a17ce9C72A4feEB",
+      "explorer": "https://sepolia.basescan.org",
+      "lastUpdated": "2025-08-06T09:31:58.712Z"
+    },
+    "avalanche-fuji-testnet": {
+      "chainId": 43113,
+      "networkName": "Avalanche Fuji Testnet",
+      "customStablecoinOFT": "0x53CDBE278328314F6208776cBF7Da0a0C2c6Feea",
+      "simpleCrossChainRouter": "0x9480AbA0DFe3bfC6080D279781afD4B1fFcfb8d8",
+      "layerZeroEndpoint": "0x6EDCE65403992e310A62460808c4b910D972f10f",
+      "dexRouter": "0x011b561002A1D2522210BA3d687131AB1F6AcF79",
+      "explorer": "https://testnet.snowtrace.io",
+      "lastUpdated": "2025-08-06T09:31:59.413Z"
+    },
+    "polygon-amoy": {
+      "chainId": 80002,
+      "networkName": "Polygon Amoy Testnet",
+      "customStablecoinOFT": "0x91735d81732902Cb2a80Dcffc2188592B4031226",
+      "simpleCrossChainRouter": "0x69c475d50afa8EAd344E85326369277F88b74CC6",
+      "layerZeroEndpoint": "0x6EDCE65403992e310A62460808c4b910D972f10f",
+      "dexRouter": "0xa5812cE58B6Cb897b9B02ED1bAA1f9AC01D4F67e",
+      "explorer": "https://amoy.polygonscan.com",
+      "lastUpdated": "2025-08-06T09:32:02.180Z"
+    },
+    "optimism-sepolia-testnet": {
+      "chainId": 11155420,
+      "networkName": "Optimism Sepolia Testnet",
+      "customStablecoinOFT": "0xdFA54fa7F1f275ab103D4f0Ad65Bc2Fb239E43f9",
+      "simpleCrossChainRouter": "0x97F4FE32fF553B6f426Ee1998956164638B75a44",
+      "layerZeroEndpoint": "0x6EDCE65403992e310A62460808c4b910D972f10f",
+      "dexRouter": "0x3DfCfA2730f768cf4cf931f4896109ffa9c3e202",
+      "explorer": "https://sepolia-optimism.etherscan.io",
+      "lastUpdated": "2025-08-06T09:32:02.185Z"
+    },
+    "ethereum-sepolia": {
+      "chainId": 11155111,
+      "networkName": "Ethereum Sepolia Testnet",
+      "customStablecoinOFT": "0xDE44975f2060d977Dd7c7B93C7d7aFec8fFcb1a2",
+      "simpleCrossChainRouter": "0xAdf3323e9B2D26Dfc17c5309390786264Dd2D494",
+      "layerZeroEndpoint": "0x6EDCE65403992e310A62460808c4b910D972f10f",
+      "dexRouter": "0xC235d41016435B1034aeC94f9de17a78d9dA7028",
+      "explorer": "https://sepolia.etherscan.io",
+      "lastUpdated": "2025-08-06T09:32:49.492Z"
+    },
+    "holesky": {
+      "chainId": 17000,
+      "networkName": "Ethereum Holesky Testnet",
+      "customStablecoinOFT": "0xfAe78B00a8e7d9eDd1cCFBa0Ca61be311Ce59C08",
+      "simpleCrossChainRouter": "0x3c7Fe5125Df4BB7Cc6f156E64Fd1949F07B9fA4d",
+      "layerZeroEndpoint": "0x6EDCE65403992e310A62460808c4b910D972f10f",
+      "dexRouter": "0x1F2Ea7012Be2Fb0Ba2ce8B7B2A1ab3357Ab2315d",
+      "explorer": "https://holesky.etherscan.io",
+      "lastUpdated": "2025-08-06T09:32:52.837Z"
+    }
+  },
+  "metadata": {
+    "totalNetworks": 8,
+    "stablecoinName": "Payfunds USD",
+    "stablecoinSymbol": "PFUSD",
+    "layerZeroVersion": "V2",
+    "lastGlobalUpdate": "2025-08-06T09:32:52.837Z"
+  }
+}

@@ -149,10 +149,10 @@ export const sepolia = defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://eth-sepolia.g.alchemy.com/v2/Ln0Aa5Ea0iyVV0mh6RpyT'],
+      http: ['https://ethereum-sepolia-rpc.publicnode.com'],
     },
     public: {
-      http: ['https://eth-sepolia.g.alchemy.com/v2/Ln0Aa5Ea0iyVV0mh6RpyT'],
+      http: ['https://ethereum-sepolia-rpc.publicnode.com'],
     },
   },
   blockExplorers: {
