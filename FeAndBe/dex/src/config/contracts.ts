@@ -1,0 +1,51 @@
+export const CONTRACT_ADDRESSES = {
+  // Polygon Amoy (80002)
+  80002: {
+    factory: '0xD1fB70842D9A9A330B0E3e1c6Fd47fdCC20B4982',
+    router: '0xa5812cE58B6Cb897b9B02ED1bAA1f9AC01D4F67e',
+    weth: '0x0000000000000000000000000000000000001010', // MATIC
+  },
+  // Arbitrum Sepolia (421614)
+  421614: {
+    factory: '0xfdA105569553e29a46fF28D07bd77c1344aDD837',
+    router: '0xC5e1362cC4768A10331f77DDe46572f54802e142',
+    weth: '0x0000000000000000000000000000000000000000', // ETH
+  },
+  // Sepolia (11155111)
+  11155111: {
+    factory: '0x246D0DB8116F732549dFF7FfDbeEfFB1eB608681',
+    router: '0xC235d41016435B1034aeC94f9de17a78d9dA7028',
+    weth: '0x0000000000000000000000000000000000000000', // ETH
+  },
+  // BSC Testnet (97)
+  97: {
+    factory: '0xE7AbD5CF4180D2F6891115070839A2f95CB35F9a',
+    router: '0x78069aF1280A73D240cCDF16Ab4a483555246665',
+    weth: '0x0000000000000000000000000000000000000000', // BNB
+  },
+  // Base Sepolia (84532)
+  84532: {
+    factory: '0xA4F64f7d0E9a75B014a856FFd2c58c36869F4671',
+    router: '0xC3b415C823366DC2222d979b0a17ce9C72A4feEB',
+    weth: '0x0000000000000000000000000000000000000000', // ETH
+  },
+  // Optimism Sepolia (11155420)
+  11155420: {
+    factory: '0x6DcC3258fB9F9355d7E4CDE912478369c55b8B6b',
+    router: '0x3DfCfA2730f768cf4cf931f4896109ffa9c3e202',
+    weth: '0x0000000000000000000000000000000000000000', // ETH
+  },
+  // Avalanche Fuji (43113)
+  43113: {
+    factory: '0x394e2919526d23181A6B3D9e1654829D197cbf46',
+    router: '0x011b561002A1D2522210BA3d687131AB1F6AcF79',
+    weth: '0x0000000000000000000000000000000000000000', // AVAX
+  },
+} as const
+
+export const getContractAddress = (chainId: number, contractType: 'factory' | 'router' | 'weth') => {
+  return CONTRACT_ADDRESSES[chainId as keyof typeof CONTRACT_ADDRESSES]?.[contractType]
+}
+
+export type ContractAddresses = typeof CONTRACT_ADDRESSES
+export type SupportedChainId = keyof ContractAddresses
