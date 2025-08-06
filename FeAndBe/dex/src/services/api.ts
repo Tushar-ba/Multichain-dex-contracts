@@ -36,6 +36,8 @@ export class ApiService {
   }
 
   static async createPairEvent(eventData: any): Promise<void> {
+    console.log('Sending pair event data:', eventData)
+    
     const response = await fetch(`${API_BASE_URL}/api/events/pair-created`, {
       method: 'POST',
       headers: {
@@ -45,7 +47,9 @@ export class ApiService {
     })
     
     if (!response.ok) {
-      throw new Error(`Failed to create pair event: ${response.statusText}`)
+      const errorText = await response.text()
+      console.error('API Error Response:', errorText)
+      throw new Error(`Failed to create pair event: ${response.statusText} - ${errorText}`)
     }
   }
 

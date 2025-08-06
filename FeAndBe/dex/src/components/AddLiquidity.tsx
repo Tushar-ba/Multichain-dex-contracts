@@ -7,6 +7,7 @@ import { TokenSelector } from './TokenSelector'
 import { Token } from '@/types'
 import { ContractService } from '@/services/contracts'
 import { ApiService } from '@/services/api'
+import { getContractAddress } from '@/config/contracts'
 
 export function AddLiquidity() {
   const { address, isConnected } = useAccount()
@@ -18,8 +19,6 @@ export function AddLiquidity() {
   const [amountB, setAmountB] = useState('')
   const [loading, setLoading] = useState(false)
   const [pairExists, setPairExists] = useState<boolean | null>(null)
-  const [approvalA, setApprovalA] = useState<boolean>(false)
-  const [approvalB, setApprovalB] = useState<boolean>(false)
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -30,15 +29,10 @@ export function AddLiquidity() {
   useEffect(() => {
     if (tokenA && tokenB && chainId) {
       checkPairExists()
+    } else {
+      setPairExists(null)
     }
   }, [tokenA, tokenB, chainId])
-
-  // Check approvals when amounts change
-  useEffect(() => {
-    if (tokenA && tokenB && amountA && amountB && address && chainId) {
-      checkApprovals()
-    }
-  }, [tokenA, tokenB, amountA, amountB, address, chainId])
 
   const checkPairExists = async () => {
     if (!tokenA || !tokenB || !chainId) return
@@ -48,116 +42,86 @@ export function AddLiquidity() {
       const contractService = new ContractService(provider, undefined, chainId)
       
       const pairAddress = await contractService.getPairAddress(tokenA.address, tokenB.address)
-      setPairExists(pairAddress !== '0x0000000000000000000000000000000000000000')
+      const exists = pairAddress !== '0x0000000000000000000000000000000000000000'
+      setPairExists(exists)
     } catch (error) {
       console.error('Error checking pair:', error)
       setPairExists(false)
     }
   }
 
-  const checkApprovals = async () => {
+  // Main function that handles everything: pair creation, approvals, and adding liquidity
+  const handleApproveAndProvideLiquidity = async () => {
     if (!tokenA || !tokenB || !amountA || !amountB || !address || !chainId) return
 
+    setLoading(true)
     try {
       const provider = new ethers.BrowserProvider(window.ethereum)
-      const contractService = new ContractService(provider, undefined, chainId)
+      const signer = await provider.getSigner()
+      const contractService = new ContractService(provider, signer, chainId)
       
       const routerAddress = contractService.getRouterContract(true).target as string
-      
-      // Check token A approval
-      const allowanceA = await contractService.getTokenAllowance(tokenA.address, address, routerAddress)
       const amountAWei = ethers.parseUnits(amountA, tokenA.data.decimals)
-      setApprovalA(BigInt(allowanceA) >= amountAWei)
-
-      // Check token B approval
-      const allowanceB = await contractService.getTokenAllowance(tokenB.address, address, routerAddress)
       const amountBWei = ethers.parseUnits(amountB, tokenB.data.decimals)
-      setApprovalB(BigInt(allowanceB) >= amountBWei)
-    } catch (error) {
-      console.error('Error checking approvals:', error)
-    }
-  }
 
-  const handleApprove = async (token: Token, amount: string) => {
-    if (!address || !chainId) return
-
-    setLoading(true)
-    try {
-      const provider = new ethers.BrowserProvider(window.ethereum)
-      const signer = await provider.getSigner()
-      const contractService = new ContractService(provider, signer, chainId)
-      
-      const routerAddress = contractService.getRouterContract(true).target as string
-      const amountWei = ethers.parseUnits(amount, token.data.decimals)
-      
-      await contractService.approveToken(token.address, routerAddress, amountWei.toString())
-      
-      // Recheck approvals
-      await checkApprovals()
-    } catch (error) {
-      console.error('Error approving token:', error)
-      alert('Failed to approve token')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleCreatePair = async () => {
-    if (!tokenA || !tokenB || !address || !chainId) return
-
-    setLoading(true)
-    try {
-      const provider = new ethers.BrowserProvider(window.ethereum)
-      const signer = await provider.getSigner()
-      const contractService = new ContractService(provider, signer, chainId)
-      
-      const receipt = await contractService.createPair(tokenA.address, tokenB.address)
-      
-      // Store pair creation event in database
-      const eventData = {
-        transactionHash: receipt.transactionHash,
-        chainId,
-        factoryAddress: contractService.getFactoryContract(true).target,
-        token0: tokenA.address < tokenB.address ? tokenA.address : tokenB.address,
-        token1: tokenA.address < tokenB.address ? tokenB.address : tokenA.address,
-        pairAddress: receipt.logs[0]?.address || '', // This would need proper parsing
-        pairIndex: 1, // This would need to be fetched from the event
-        blockNumber: receipt.blockNumber,
-        blockTimestamp: new Date(),
-        gasUsed: receipt.gasUsed?.toString(),
-        gasPrice: receipt.gasPrice?.toString(),
-        creator: address
+      // Step 1: Create pair if it doesn't exist
+      if (pairExists === false) {
+        console.log('Creating pair...')
+        const receipt = await contractService.createPair(tokenA.address, tokenB.address)
+        
+        // Store pair creation event in database
+        const eventData = {
+          transactionHash: receipt.hash || receipt.transactionHash || receipt.tx || 'unknown',
+          chainId: chainId,
+          factoryAddress: getContractAddress(chainId, 'factory') || '0x0000000000000000000000000000000000000000',
+          token0: tokenA.address < tokenB.address ? tokenA.address : tokenB.address,
+          token1: tokenA.address < tokenB.address ? tokenB.address : tokenA.address,
+          pairAddress: receipt.logs?.[0]?.address || '0x0000000000000000000000000000000000000000',
+          pairIndex: 1,
+          blockNumber: receipt.blockNumber || 0,
+          blockTimestamp: Math.floor(Date.now() / 1000),
+          gasUsed: receipt.gasUsed?.toString() || '0',
+          gasPrice: receipt.gasPrice?.toString() || '0',
+          creator: address,
+          token0Symbol: tokenA.data.symbol,
+          token1Symbol: tokenB.data.symbol,
+          token0Decimals: tokenA.data.decimals,
+          token1Decimals: tokenB.data.decimals,
+          isActive: true
+        }
+        
+        try {
+          await ApiService.createPairEvent(eventData)
+        } catch (dbError) {
+          console.warn('Failed to store pair creation event:', dbError)
+        }
+        
+        setPairExists(true)
       }
-      
-      await ApiService.createPairEvent(eventData)
-      
-      setPairExists(true)
-      alert('Pair created successfully!')
-    } catch (error) {
-      console.error('Error creating pair:', error)
-      alert('Failed to create pair')
-    } finally {
-      setLoading(false)
-    }
-  }
 
-  const handleAddLiquidity = async () => {
-    if (!tokenA || !tokenB || !amountA || !amountB || !address || !chainId) return
+      // Step 2: Check and approve Token A if needed
+      console.log('Checking Token A approval...')
+      const allowanceA = await contractService.getTokenAllowance(tokenA.address, address, routerAddress)
+      if (BigInt(allowanceA) < amountAWei) {
+        console.log('Approving Token A...')
+        await contractService.approveToken(tokenA.address, routerAddress, amountAWei.toString())
+      }
 
-    setLoading(true)
-    try {
-      const provider = new ethers.BrowserProvider(window.ethereum)
-      const signer = await provider.getSigner()
-      const contractService = new ContractService(provider, signer, chainId)
-      
-      const amountAWei = ethers.parseUnits(amountA, tokenA.data.decimals)
-      const amountBWei = ethers.parseUnits(amountB, tokenB.data.decimals)
+      // Step 3: Check and approve Token B if needed
+      console.log('Checking Token B approval...')
+      const allowanceB = await contractService.getTokenAllowance(tokenB.address, address, routerAddress)
+      if (BigInt(allowanceB) < amountBWei) {
+        console.log('Approving Token B...')
+        await contractService.approveToken(tokenB.address, routerAddress, amountBWei.toString())
+      }
+
+      // Step 4: Add liquidity
+      console.log('Adding liquidity...')
+      const deadline = contractService.getDeadline()
       
       // Calculate minimum amounts (5% slippage)
       const amountAMin = (amountAWei * BigInt(95)) / BigInt(100)
       const amountBMin = (amountBWei * BigInt(95)) / BigInt(100)
-      
-      const deadline = contractService.getDeadline()
 
       let receipt
       
@@ -210,16 +174,16 @@ export function AddLiquidity() {
           symbol: tokenA.data.symbol,
           decimals: tokenA.data.decimals,
           amountDesired: amountA,
-          actualAmount: amountA // This would need proper parsing from receipt
+          actualAmount: amountA
         },
         tokenB: {
           address: tokenB.address,
           symbol: tokenB.data.symbol,
           decimals: tokenB.data.decimals,
           amountDesired: amountB,
-          actualAmount: amountB // This would need proper parsing from receipt
+          actualAmount: amountB
         },
-        liquidity: '0', // This would need to be parsed from receipt
+        liquidity: '0',
         pairAddress: await contractService.getPairAddress(tokenA.address, tokenB.address),
         to: address,
         deadline,
@@ -235,20 +199,27 @@ export function AddLiquidity() {
       alert('Liquidity added successfully!')
       setAmountA('')
       setAmountB('')
+      
+      // Refresh pair status
+      await checkPairExists()
     } catch (error) {
-      console.error('Error adding liquidity:', error)
-      alert('Failed to add liquidity')
+      console.error('Error in approve and provide liquidity:', error)
+      alert('Failed to provide liquidity. Please try again.')
     } finally {
       setLoading(false)
     }
   }
 
+
+
   if (!mounted) {
     return (
-      <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-lg">
-        <h2 className="text-2xl font-bold mb-6 text-center">Add Liquidity</h2>
-        <div className="text-center text-gray-500">
-          Loading...
+      <div className="max-w-2xl mx-auto p-8 bg-white rounded-2xl shadow-2xl border border-gray-100">
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
+            Add Liquidity
+          </h2>
+          <p className="text-gray-500">Loading...</p>
         </div>
       </div>
     )
@@ -256,17 +227,19 @@ export function AddLiquidity() {
 
   if (!isConnected) {
     return (
-      <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-lg">
-        <h2 className="text-2xl font-bold mb-6 text-center">Add Liquidity</h2>
-        <div className="text-center text-gray-500">
-          Please connect your wallet to add liquidity
+      <div className="max-w-2xl mx-auto p-8 bg-white rounded-2xl shadow-2xl border border-gray-100">
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
+            Add Liquidity
+          </h2>
+          <p className="text-gray-500">Please connect your wallet to add liquidity</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="max-w-lg mx-auto p-8 bg-white rounded-2xl shadow-2xl border border-gray-100">
+    <div className="max-w-2xl mx-auto p-8 bg-white rounded-2xl shadow-2xl border border-gray-100">
       <div className="text-center mb-8">
         <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
           Add Liquidity
@@ -368,79 +341,24 @@ export function AddLiquidity() {
         </div>
       )}
 
-      {/* Action Buttons */}
-      <div className="space-y-4">
-        {/* Create Pair Button */}
-        {tokenA && tokenB && pairExists === false && (
-          <button
-            onClick={handleCreatePair}
-            disabled={loading}
-            className="w-full btn-warning disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-          >
-            {loading ? (
-              <div className="flex items-center justify-center gap-2">
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                Creating Pair...
-              </div>
-            ) : (
-              'Create Pair'
-            )}
-          </button>
-        )}
-
-        {/* Approval Buttons */}
-        {tokenA && amountA && !approvalA && (
-          <button
-            onClick={() => handleApprove(tokenA, amountA)}
-            disabled={loading}
-            className="w-full btn-secondary disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-          >
-            {loading ? (
-              <div className="flex items-center justify-center gap-2">
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                Approving...
-              </div>
-            ) : (
-              `Approve ${tokenA.data.symbol}`
-            )}
-          </button>
-        )}
-
-        {tokenB && amountB && !approvalB && (
-          <button
-            onClick={() => handleApprove(tokenB, amountB)}
-            disabled={loading}
-            className="w-full btn-secondary disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-          >
-            {loading ? (
-              <div className="flex items-center justify-center gap-2">
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                Approving...
-              </div>
-            ) : (
-              `Approve ${tokenB.data.symbol}`
-            )}
-          </button>
-        )}
-
-        {/* Add Liquidity Button */}
-        {tokenA && tokenB && amountA && amountB && pairExists && approvalA && approvalB && (
-          <button
-            onClick={handleAddLiquidity}
-            disabled={loading}
-            className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-          >
-            {loading ? (
-              <div className="flex items-center justify-center gap-2">
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                Adding Liquidity...
-              </div>
-            ) : (
-              'Add Liquidity'
-            )}
-          </button>
-        )}
-      </div>
+      {/* Single Action Button */}
+      {tokenA && tokenB && amountA && amountB && (
+        <button
+          type="button"
+          onClick={handleApproveAndProvideLiquidity}
+          disabled={loading}
+          className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+        >
+          {loading ? (
+            <div className="flex items-center justify-center gap-2">
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              {pairExists === false ? 'Creating Pair, Approving & Adding Liquidity...' : 'Approving & Adding Liquidity...'}
+            </div>
+          ) : (
+            pairExists === false ? 'Create Pair, Approve & Provide Liquidity' : 'Approve & Provide Liquidity'
+          )}
+        </button>
+      )}
     </div>
   )
 }

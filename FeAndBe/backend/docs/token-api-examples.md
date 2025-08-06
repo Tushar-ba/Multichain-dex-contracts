@@ -44,7 +44,7 @@ GET /api/tokens/chain/11155111
       "data": {
         "name": "USD Coin",
         "symbol": "USDC",
-        "uri": "https://raw.githubusercontent.com/Tushar-ba/metadata/main/usd-coin-usdc-logo.png",
+        "uri": "https://tse2.mm.bing.net/th/id/OIP.x2szykLFcwq3fzNBzpdkpwHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3",
         "decimals": 18,
         "chain": "Sepolia",
         "chainId": 11155111
@@ -118,7 +118,7 @@ GET /api/tokens/chain/11155111/address/0x7d42a5f6D1Ea6F91a6b7D689cd6728ac5d156f2
     "data": {
       "name": "USD Coin",
       "symbol": "USDC",
-      "uri": "https://raw.githubusercontent.com/Tushar-ba/metadata/main/usd-coin-usdc-logo.png",
+      "uri": "https://tse2.mm.bing.net/th/id/OIP.x2szykLFcwq3fzNBzpdkpwHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3",
       "decimals": 18,
       "chain": "Sepolia",
       "chainId": 11155111

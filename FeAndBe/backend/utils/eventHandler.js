@@ -19,22 +19,37 @@ const eventHandler = {
         blockTimestamp,
         gasUsed,
         gasPrice,
-        creator
+        creator,
+        token0Symbol,
+        token1Symbol,
+        token0Decimals,
+        token1Decimals,
+        isActive
       } = eventData;
+
+      // Validate required fields
+      if (!transactionHash || transactionHash === 'unknown') {
+        throw new Error('Transaction hash is required');
+      }
 
       const pair = new PairCreated({
         transactionHash,
         chainId,
-        factoryAddress: factoryAddress.toLowerCase(),
-        token0: token0.toLowerCase(),
-        token1: token1.toLowerCase(),
-        pairAddress: pairAddress.toLowerCase(),
-        pairIndex,
-        blockNumber,
-        blockTimestamp: new Date(blockTimestamp * 1000),
-        gasUsed,
-        gasPrice,
-        creator: creator.toLowerCase()
+        factoryAddress: factoryAddress?.toLowerCase() || '0x0000000000000000000000000000000000000000',
+        token0: token0?.toLowerCase() || '0x0000000000000000000000000000000000000000',
+        token1: token1?.toLowerCase() || '0x0000000000000000000000000000000000000000',
+        pairAddress: pairAddress?.toLowerCase() || '0x0000000000000000000000000000000000000000',
+        pairIndex: pairIndex || 1,
+        blockNumber: blockNumber || 0,
+        blockTimestamp: blockTimestamp instanceof Date ? blockTimestamp : new Date(blockTimestamp * 1000),
+        gasUsed: gasUsed || '0',
+        gasPrice: gasPrice || '0',
+        creator: creator?.toLowerCase() || '0x0000000000000000000000000000000000000000',
+        token0Symbol: token0Symbol || '',
+        token1Symbol: token1Symbol || '',
+        token0Decimals: token0Decimals || 18,
+        token1Decimals: token1Decimals || 18,
+        isActive: isActive !== undefined ? isActive : true
       });
 
       await pair.save();

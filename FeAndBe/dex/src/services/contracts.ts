@@ -36,7 +36,7 @@ export class ContractService {
   getFactoryContract(readOnly = false) {
     const factoryAddress = getContractAddress(this.chainId, 'factory')
     if (!factoryAddress) throw new Error('Factory contract not found for this chain')
-    
+
     return new ethers.Contract(
       factoryAddress,
       FactoryABI,
@@ -48,7 +48,7 @@ export class ContractService {
   getRouterContract(readOnly = false) {
     const routerAddress = getContractAddress(this.chainId, 'router')
     if (!routerAddress) throw new Error('Router contract not found for this chain')
-    
+
     return new ethers.Contract(
       routerAddress,
       RouterABI,
@@ -83,7 +83,7 @@ export class ContractService {
   // Create pair
   async createPair(tokenA: string, tokenB: string) {
     if (!this.signer) throw new Error('Signer required for creating pair')
-    
+
     const factory = this.getFactoryContract()
     const tx = await factory.createPair(tokenA, tokenB)
     return await tx.wait()
@@ -93,7 +93,7 @@ export class ContractService {
   async getTokenBalance(tokenAddress: string, userAddress: string): Promise<string> {
     // Handle native token
     if (tokenAddress === '0x0000000000000000000000000000000000000000' ||
-        tokenAddress === '0x0000000000000000000000000000000000001010') {
+      tokenAddress === '0x0000000000000000000000000000000000001010') {
       const balance = await this.provider.getBalance(userAddress)
       return balance.toString()
     }
@@ -107,7 +107,7 @@ export class ContractService {
   // Get token allowance
   async getTokenAllowance(tokenAddress: string, owner: string, spender: string): Promise<string> {
     if (tokenAddress === '0x0000000000000000000000000000000000000000' ||
-        tokenAddress === '0x0000000000000000000000000000000000001010') {
+      tokenAddress === '0x0000000000000000000000000000000000001010') {
       return ethers.MaxUint256.toString() // Native tokens don't need approval
     }
 
@@ -119,9 +119,9 @@ export class ContractService {
   // Approve token spending
   async approveToken(tokenAddress: string, spender: string, amount: string) {
     if (!this.signer) throw new Error('Signer required for token approval')
-    
+
     if (tokenAddress === '0x0000000000000000000000000000000000000000' ||
-        tokenAddress === '0x0000000000000000000000000000000000001010') {
+      tokenAddress === '0x0000000000000000000000000000000000001010') {
       return null // Native tokens don't need approval
     }
 
@@ -142,7 +142,7 @@ export class ContractService {
     deadline: number
   }) {
     if (!this.signer) throw new Error('Signer required for adding liquidity')
-    
+
     const router = this.getRouterContract()
     const tx = await router.addLiquidity(
       params.tokenA,
@@ -168,7 +168,7 @@ export class ContractService {
     nativeAmount: string
   }) {
     if (!this.signer) throw new Error('Signer required for adding liquidity')
-    
+
     const router = this.getRouterContract()
     const tx = await router.addLiquidityMATIC(
       params.token,
@@ -188,13 +188,46 @@ export class ContractService {
     const [reserve0, reserve1, blockTimestampLast] = await pair.getReserves()
     const token0 = await pair.token0()
     const token1 = await pair.token1()
-    
+
     return {
       reserve0: reserve0.toString(),
       reserve1: reserve1.toString(),
       blockTimestampLast: blockTimestampLast.toString(),
       token0,
       token1
+    }
+  }
+
+  // Calculate quote for adding liquidity
+  async calculateLiquidityQuote(tokenA: string, tokenB: string, amountA: string) {
+    const router = this.getRouterContract(true)
+    const pairAddress = await this.getPairAddress(tokenA, tokenB)
+
+    if (pairAddress === '0x0000000000000000000000000000000000000000') {
+      // No pair exists, return the desired amounts
+      return null
+    }
+
+    const reserves = await this.getPairReserves(pairAddress)
+    const amountABigInt = BigInt(amountA)
+
+    // Determine which token is token0 and token1
+    const isTokenAFirst = tokenA.toLowerCase() < tokenB.toLowerCase()
+    const reserveA = isTokenAFirst ? BigInt(reserves.reserve0) : BigInt(reserves.reserve1)
+    const reserveB = isTokenAFirst ? BigInt(reserves.reserve1) : BigInt(reserves.reserve0)
+
+    if (reserveA === 0n || reserveB === 0n) {
+      // Pool has no liquidity, return null
+      return null
+    }
+
+    // Calculate quote using the router's quote function
+    const quotedAmountB = await router.quote(amountABigInt, reserveA, reserveB)
+
+    return {
+      amountB: quotedAmountB.toString(),
+      reserveA: reserveA.toString(),
+      reserveB: reserveB.toString()
     }
   }
 

@@ -16,7 +16,7 @@ const tokens = [
         data: {
             name: 'USD Coin',
             symbol: 'USDC',
-            uri: 'https://raw.githubusercontent.com/Tushar-ba/metadata/main/usd-coin-usdc-logo.png',
+            uri: 'https://tse2.mm.bing.net/th/id/OIP.x2szykLFcwq3fzNBzpdkpwHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3',
             decimals: 18,
             chain: "Sepolia",
             chainId: 11155111
@@ -27,7 +27,7 @@ const tokens = [
         data: {
             name: 'Maga',
             symbol: 'TRUMP',
-            uri: 'https://raw.githubusercontent.com/Tushar-ba/metadata/main/tether-usdt-logo.png',
+            uri: 'https://images-na.ssl-images-amazon.com/images/I/71zkn4UyOPL.jpg',
             decimals: 18,
             chain: "Sepolia",
             chainId: 11155111
@@ -49,7 +49,7 @@ const tokens = [
         data: {
             name: 'Wrapped Solana',
             symbol: 'SOL',
-            uri: 'https://raw.githubusercontent.com/Tushar-ba/metadata/refs/heads/main/solana.jpg',
+            uri: 'https://tse3.mm.bing.net/th/id/OIP.PbukzBkl3iJvLDCam7370wHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3',
             decimals: 18,
             chain: "Sepolia",
             chainId: 11155111
@@ -128,7 +128,7 @@ const tokens = [
         data: {
             name: 'Wrapped Solana',
             symbol: 'SOL',
-            uri: 'https://raw.githubusercontent.com/Tushar-ba/metadata/refs/heads/main/solana.jpg',
+            uri: 'https://tse3.mm.bing.net/th/id/OIP.PbukzBkl3iJvLDCam7370wHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3',
             decimals: 18,
             chain: "Polygon Amoy",
             chainId: 80002
@@ -139,7 +139,7 @@ const tokens = [
         data: {
             name: 'Sui',
             symbol: 'SUI',
-            uri: 'https://raw.githubusercontent.com/Tushar-ba/metadata/main/sui-sui-logo.png',
+            uri: 'https://tse3.mm.bing.net/th/id/OIP.PbukzBkl3iJvLDCam7370wHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3',
             decimals: 18,
             chain: "Polygon Amoy",
             chainId: 80002
@@ -174,7 +174,7 @@ const tokens = [
         data: {
             name: 'USD Coin',
             symbol: 'USDC',
-            uri: 'https://raw.githubusercontent.com/Tushar-ba/metadata/main/usd-coin-usdc-logo.png',
+            uri: 'https://tse2.mm.bing.net/th/id/OIP.x2szykLFcwq3fzNBzpdkpwHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3',
             decimals: 18,
             chain: "Arbitrum Sepolia",
             chainId: 421614
@@ -185,7 +185,7 @@ const tokens = [
         data: {
             name: 'Maga',
             symbol: 'TRUMP',
-            uri: 'https://raw.githubusercontent.com/Tushar-ba/metadata/main/tether-usdt-logo.png',
+            uri: 'https://images-na.ssl-images-amazon.com/images/I/71zkn4UyOPL.jpg',
             decimals: 18,
             chain: "Arbitrum Sepolia",
             chainId: 421614
@@ -207,7 +207,7 @@ const tokens = [
         data: {
             name: 'Wrapped Solana',
             symbol: 'SOL',
-            uri: 'https://raw.githubusercontent.com/Tushar-ba/metadata/refs/heads/main/solana.jpg',
+            uri: 'https://tse3.mm.bing.net/th/id/OIP.PbukzBkl3iJvLDCam7370wHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3',
             decimals: 18,
             chain: "Arbitrum Sepolia",
             chainId: 421614
@@ -253,7 +253,7 @@ const tokens = [
         data: {
             name: 'USD Coin',
             symbol: 'USDC',
-            uri: 'https://raw.githubusercontent.com/Tushar-ba/metadata/main/usd-coin-usdc-logo.png',
+            uri: 'https://tse2.mm.bing.net/th/id/OIP.x2szykLFcwq3fzNBzpdkpwHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3',
             decimals: 18,
             chain: "BSC Testnet",
             chainId: 97
@@ -264,7 +264,7 @@ const tokens = [
         data: {
             name: 'Maga',
             symbol: 'TRUMP',
-            uri: 'https://raw.githubusercontent.com/Tushar-ba/metadata/main/tether-usdt-logo.png',
+            uri: 'https://images-na.ssl-images-amazon.com/images/I/71zkn4UyOPL.jpg',
             decimals: 18,
             chain: "BSC Testnet",
             chainId: 97
@@ -286,7 +286,7 @@ const tokens = [
         data: {
             name: 'Wrapped Solana',
             symbol: 'SOL',
-            uri: 'https://raw.githubusercontent.com/Tushar-ba/metadata/refs/heads/main/solana.jpg',
+            uri: 'https://tse3.mm.bing.net/th/id/OIP.PbukzBkl3iJvLDCam7370wHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3',
             decimals: 18,
             chain: "BSC Testnet",
             chainId: 97
@@ -332,7 +332,7 @@ const tokens = [
         data: {
             name: 'USD Coin',
             symbol: 'USDC',
-            uri: 'https://raw.githubusercontent.com/Tushar-ba/metadata/main/usd-coin-usdc-logo.png',
+            uri: 'https://tse2.mm.bing.net/th/id/OIP.x2szykLFcwq3fzNBzpdkpwHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3',
             decimals: 18,
             chain: "Optimism Sepolia",
             chainId: 11155420
@@ -343,7 +343,7 @@ const tokens = [
         data: {
             name: 'Maga',
             symbol: 'TRUMP',
-            uri: 'https://raw.githubusercontent.com/Tushar-ba/metadata/main/tether-usdt-logo.png',
+            uri: 'https://images-na.ssl-images-amazon.com/images/I/71zkn4UyOPL.jpg',
             decimals: 18,
             chain: "Optimism Sepolia",
             chainId: 11155420
@@ -365,7 +365,7 @@ const tokens = [
         data: {
             name: 'Wrapped Solana',
             symbol: 'SOL',
-            uri: 'https://raw.githubusercontent.com/Tushar-ba/metadata/refs/heads/main/solana.jpg',
+            uri: 'https://tse3.mm.bing.net/th/id/OIP.PbukzBkl3iJvLDCam7370wHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3',
             decimals: 18,
             chain: "Optimism Sepolia",
             chainId: 11155420
@@ -411,7 +411,7 @@ const tokens = [
         data: {
             name: 'USD Coin',
             symbol: 'USDC',
-            uri: 'https://raw.githubusercontent.com/Tushar-ba/metadata/main/usd-coin-usdc-logo.png',
+            uri: 'https://tse2.mm.bing.net/th/id/OIP.x2szykLFcwq3fzNBzpdkpwHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3',
             decimals: 18,
             chain: "Avalanche Fuji",
             chainId: 43113
@@ -422,7 +422,7 @@ const tokens = [
         data: {
             name: 'Maga',
             symbol: 'TRUMP',
-            uri: 'https://raw.githubusercontent.com/Tushar-ba/metadata/main/tether-usdt-logo.png',
+            uri: 'https://images-na.ssl-images-amazon.com/images/I/71zkn4UyOPL.jpg',
             decimals: 18,
             chain: "Avalanche Fuji",
             chainId: 43113
@@ -444,7 +444,7 @@ const tokens = [
         data: {
             name: 'Wrapped Solana',
             symbol: 'SOL',
-            uri: 'https://raw.githubusercontent.com/Tushar-ba/metadata/refs/heads/main/solana.jpg',
+            uri: 'https://tse3.mm.bing.net/th/id/OIP.PbukzBkl3iJvLDCam7370wHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3',
             decimals: 18,
             chain: "Avalanche Fuji",
             chainId: 43113
@@ -490,7 +490,7 @@ const tokens = [
         data: {
             name: 'USD Coin',
             symbol: 'USDC',
-            uri: 'https://raw.githubusercontent.com/Tushar-ba/metadata/main/usd-coin-usdc-logo.png',
+            uri: 'https://tse2.mm.bing.net/th/id/OIP.x2szykLFcwq3fzNBzpdkpwHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3',
             decimals: 18,
             chain: "Base Sepolia",
             chainId: 84532
@@ -501,7 +501,7 @@ const tokens = [
         data: {
             name: 'Maga',
             symbol: 'TRUMP',
-            uri: 'https://raw.githubusercontent.com/Tushar-ba/metadata/main/tether-usdt-logo.png',
+            uri: 'https://images-na.ssl-images-amazon.com/images/I/71zkn4UyOPL.jpg',
             decimals: 18,
             chain: "Base Sepolia",
             chainId: 84532
@@ -523,7 +523,7 @@ const tokens = [
         data: {
             name: 'Wrapped Solana',
             symbol: 'SOL',
-            uri: 'https://raw.githubusercontent.com/Tushar-ba/metadata/refs/heads/main/solana.jpg',
+            uri: 'https://tse3.mm.bing.net/th/id/OIP.PbukzBkl3iJvLDCam7370wHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3',
             decimals: 18,
             chain: "Base Sepolia",
             chainId: 84532

@@ -46,3 +46,10 @@ export interface ChainInfo {
   name: string
   tokenCount: number
 }
+
+// Extend Window interface to include ethereum
+declare global {
+  interface Window {
+    ethereum?: any
+  }
+}
