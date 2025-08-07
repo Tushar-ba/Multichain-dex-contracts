@@ -6,18 +6,18 @@ async function main() {
     console.log("💰 Amount: 100 tokens");
     console.log("===============================================");
 
-    // Network configurations based on your UI selection (reverse direction)
+    // Network configurations using correct deployment addresses
     const AVALANCHE_CONFIG = {
         eid: 40106,
-        CustomStablecoinOFT: '0x55C192C8bF6749F65dE78E524273A481C4b1f667', // PFUSD on Avalanche
-        CrossChainRouter: '0x9F577e8A1be3ec65BE0fb139425988dfE438196e',
+        CustomStablecoinOFT: '0x53CDBE278328314F6208776cBF7Da0a0C2c6Feea', // PFUSD on Avalanche (from deployment-addresses.json)
+        CrossChainRouter: '0x9480AbA0DFe3bfC6080D279781afD4B1fFcfb8d8', // CrossChain Router (from deployment-addresses.json)
         SourceToken: '0x6eF270de76beaD742E3f82083b8b0EA2C3E45Bd1'  // USDC token on Avalanche (SOURCE)
     };
 
     const HOLESKY_CONFIG = {
         eid: 40217,
-        CustomStablecoinOFT: '0x0a44Dc381949F6128Ca0615B4c68F0D15818dE74', // PFUSD on Holesky
-        CrossChainRouter: '0xC411824F1695feeC0f9b8C3d4810c2FD1AB1000a',
+        CustomStablecoinOFT: '0xfAe78B00a8e7d9eDd1cCFBa0Ca61be311Ce59C08', // PFUSD on Holesky (from deployment-addresses.json)
+        CrossChainRouter: '0x3c7Fe5125Df4BB7Cc6f156E64Fd1949F07B9fA4d', // CrossChain Router (from deployment-addresses.json)
         DestinationToken: '0x32c2aeDF58244188d04658BFE940b8168a82b56e'   // TRUMP token on Holesky (DESTINATION)
     };
 
@@ -34,7 +34,7 @@ async function main() {
         console.log("\n📋 === GETTING CONTRACT INSTANCES ===");
         const CrossChainRouter = await ethers.getContractAt("CrossChainRouter", AVALANCHE_CONFIG.CrossChainRouter);
         const SourceToken = await ethers.getContractAt("@openzeppelin/contracts/token/ERC20/IERC20.sol:IERC20", AVALANCHE_CONFIG.SourceToken);
-        
+
         console.log(`✅ CrossChainRouter: ${AVALANCHE_CONFIG.CrossChainRouter}`);
         console.log(`✅ Source Token (USDC): ${AVALANCHE_CONFIG.SourceToken}`);
         console.log(`✅ Destination Token (TRUMP): ${HOLESKY_CONFIG.DestinationToken}`);
@@ -45,7 +45,7 @@ async function main() {
         console.log("\n💰 === BALANCE CHECKS ===");
         const tokenBalance = await SourceToken.balanceOf(deployer.address);
         const ethBalance = await deployer.getBalance();
-        
+
         console.log(`USDC Balance: ${ethers.utils.formatEther(tokenBalance)}`);
         console.log(`AVAX Balance: ${ethers.utils.formatEther(ethBalance)}`);
 
@@ -60,7 +60,7 @@ async function main() {
         // Check and approve tokens
         console.log("\n🔐 === TOKEN APPROVAL ===");
         const currentAllowance = await SourceToken.allowance(deployer.address, AVALANCHE_CONFIG.CrossChainRouter);
-        
+
         if (currentAllowance.lt(amountIn)) {
             console.log("📝 Approving tokens for CrossChainRouter...");
             const approveTx = await SourceToken.approve(AVALANCHE_CONFIG.CrossChainRouter, amountIn, {
@@ -136,7 +136,7 @@ async function main() {
         console.log("⏳ Waiting for confirmation...");
 
         const receipt = await swapTx.wait();
-        
+
         if (receipt.status === 0) {
             console.error("❌ Transaction failed");
             console.log(`🔗 Check transaction: https://testnet.snowtrace.io/tx/${swapTx.hash}`);
@@ -189,7 +189,7 @@ async function main() {
     } catch (error: any) {
         console.error("\n❌ === CROSS-CHAIN SWAP FAILED ===");
         console.error(`Error: ${error.message}`);
-        
+
         if (error.message.includes('Token transfer failed')) {
             console.error("💡 Check USDC allowance and balance");
         } else if (error.message.includes('Insufficient fee') || error.message.includes('NotEnoughNative')) {
@@ -205,7 +205,7 @@ async function main() {
             console.error("💡 CrossChain router peers not configured");
             console.error("💡 Run: npx hardhat lz:oapp:wire --oapp-config layerzero.config.ts");
         }
-        
+
         throw error;
     }
 }
