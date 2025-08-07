@@ -22,7 +22,7 @@ interface IPayfundsRouter02 {
     ) external view returns (uint[] memory amounts);
 }
 
-contract SimpleCrossChainRouter is OApp, OAppOptionsType3 {
+contract CrossChainRouter is OApp, OAppOptionsType3 {
     uint16 public constant SWAP = 1;
     
     IPayfundsRouter02 public immutable dexRouter;

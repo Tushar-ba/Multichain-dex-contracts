@@ -11,19 +11,19 @@ async function main() {
         eid: 40217,
         CustomStablecoinOFT: '0x0a44Dc381949F6128Ca0615B4c68F0D15818dE74', // PFUSD on Holesky
         CrossChainRouter: '0xC411824F1695feeC0f9b8C3d4810c2FD1AB1000a',
-        SourceToken: '0x32c2aeDF58244188d04658BFE940b8168a82b56e'  // TRUMP token on Holesky
+        SourceToken: '0x32c2aeDF58244188d04658BFE940b8168a82b56e'  // TRUMP token (SOURCE)
     };
 
     const AVALANCHE_CONFIG = {
         eid: 40106,
         CustomStablecoinOFT: '0x55C192C8bF6749F65dE78E524273A481C4b1f667', // PFUSD on Avalanche
         CrossChainRouter: '0x9F577e8A1be3ec65BE0fb139425988dfE438196e',
-        DestinationToken: '0x6eF270de76beaD742E3f82083b8b0EA2C3E45Bd1'   // USDC token on Avalanche
+        DestinationToken: '0x6eF270de76beaD742E3f82083b8b0EA2C3E45Bd1'   // USDC token (DESTINATION)
     };
 
     // Swap parameters
-    const amountIn = ethers.utils.parseEther("100"); // 100 TokenA
-    const amountOutMin = ethers.utils.parseEther("95"); // Minimum 95 TokenB output
+    const amountIn = ethers.utils.parseEther("100"); // 100 TRUMP
+    const amountOutMin = ethers.utils.parseEther("95"); // Minimum 95 USDC output
     const feeAmount = ethers.utils.parseEther("0.5"); // 0.5 ETH for fees
 
     const [deployer] = await ethers.getSigners();
@@ -38,8 +38,6 @@ async function main() {
         console.log(`✅ CrossChainRouter: ${HOLESKY_CONFIG.CrossChainRouter}`);
         console.log(`✅ Source Token (TRUMP): ${HOLESKY_CONFIG.SourceToken}`);
         console.log(`✅ Destination Token (USDC): ${AVALANCHE_CONFIG.DestinationToken}`);
-        console.log(`✅ Source Stablecoin (PFUSD Holesky): ${HOLESKY_CONFIG.CustomStablecoinOFT}`);
-        console.log(`✅ Destination Stablecoin (PFUSD Avalanche): ${AVALANCHE_CONFIG.CustomStablecoinOFT}`);
 
         // Check balances
         console.log("\n💰 === BALANCE CHECKS ===");
@@ -57,13 +55,21 @@ async function main() {
             throw new Error(`❌ Insufficient ETH for fees. Required: 0.5, Available: ${ethers.utils.formatEther(ethBalance)}`);
         }
 
-        // Skip approval since it's already done from UI
+        // Check and approve tokens
         console.log("\n🔐 === TOKEN APPROVAL ===");
-        console.log("✅ Skipping approvals - already completed from UI");
-        console.log("✅ TRUMP approved for DEX router");
-        console.log("✅ TRUMP approved for CrossChain router");
-        console.log("✅ PFUSD approved for DEX router");
-        console.log("✅ PFUSD approved for CrossChain router");
+        const currentAllowance = await SourceToken.allowance(deployer.address, HOLESKY_CONFIG.CrossChainRouter);
+        
+        if (currentAllowance.lt(amountIn)) {
+            console.log("📝 Approving tokens for CrossChainRouter...");
+            const approveTx = await SourceToken.approve(HOLESKY_CONFIG.CrossChainRouter, amountIn, {
+                gasLimit: 100000
+            });
+            console.log(`🚀 Approve TX: ${approveTx.hash}`);
+            await approveTx.wait();
+            console.log("✅ Token approval confirmed!");
+        } else {
+            console.log("✅ Sufficient allowance already exists!");
+        }
 
         // Estimate swap output
         console.log("\n📊 === SWAP ESTIMATION ===");
@@ -79,11 +85,10 @@ async function main() {
         const options = "0x"; // Default options
 
         try {
-            // Use destination token address for quote (following reverswap.ts pattern)
             const quotedFee = await CrossChainRouter.quoteCrossChainSwap(
                 AVALANCHE_CONFIG.eid,                    // DESTINATION: Avalanche
                 deployer.address,
-                AVALANCHE_CONFIG.DestinationToken,       // DESTINATION TOKEN: USDC on Avalanche
+                AVALANCHE_CONFIG.DestinationToken,       // DESTINATION TOKEN: USDC
                 ethers.utils.parseEther("95"),           // Estimated stable amount
                 amountOutMin,
                 options,
@@ -93,7 +98,6 @@ async function main() {
             console.log(`💰 Provided fee: ${ethers.utils.formatEther(feeAmount)} ETH`);
         } catch (quoteError) {
             console.log("⚠️ Fee quotation failed, using provided fee amount...");
-            console.log(`Error: ${quoteError.message}`);
         }
 
         // Execute cross-chain swap
@@ -108,14 +112,13 @@ async function main() {
             AVALANCHE_CONFIG.eid,                    // destination EID (Avalanche)
             deployer.address,                        // recipient address (deployer)
             HOLESKY_CONFIG.SourceToken,              // source token (TRUMP)
-            AVALANCHE_CONFIG.DestinationToken,       // destination token (USDC) - Following reverswap.ts pattern!
+            AVALANCHE_CONFIG.DestinationToken,       // destination token (USDC) - KEY: Use destination token, not stablecoin!
             amountIn,                                // amount in (100 tokens)
             amountOutMin,                            // minimum amount out (95 tokens)
             options,                                 // LayerZero options
             {
                 value: feeAmount,                    // ETH for fees
-                gasLimit: 3000000,                   // High gas limit
-                gasPrice: ethers.utils.parseUnits("25", "gwei")
+                gasLimit: 3000000                    // High gas limit
             }
         );
 
@@ -176,6 +179,23 @@ async function main() {
     } catch (error: any) {
         console.error("\n❌ === CROSS-CHAIN SWAP FAILED ===");
         console.error(`Error: ${error.message}`);
+        
+        if (error.message.includes('Token transfer failed')) {
+            console.error("💡 Check TRUMP allowance and balance");
+        } else if (error.message.includes('Insufficient fee') || error.message.includes('NotEnoughNative')) {
+            console.error("💡 Increase the ETH fee amount for LayerZero messaging");
+        } else if (error.message.includes('deadline')) {
+            console.error("💡 Transaction deadline exceeded, try again");
+        } else if (error.message.includes('execution reverted')) {
+            console.error("💡 Contract execution failed - check:");
+            console.error("   - Contract state and parameters");
+            console.error("   - LayerZero peer configuration");
+            console.error("   - Token pair liquidity on DEX");
+        } else if (error.message.includes('No peer set')) {
+            console.error("💡 CrossChain router peers not configured");
+            console.error("💡 Run: npx hardhat lz:oapp:wire --oapp-config layerzero.config.ts");
+        }
+        
         throw error;
     }
 }
@@ -185,4 +205,4 @@ main().catch((error) => {
     process.exitCode = 1;
 });
 
-// Run this with: npx hardhat run scripts/crossChainSwapHtoA.ts --network holesky-testnet
+// Run this with: npx hardhat run scripts/crossChainSwapHtoA-clean.ts --network holesky
