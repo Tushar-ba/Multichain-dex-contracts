@@ -203,24 +203,23 @@ export default function CrossChainSwapPage() {
       const quote = await crossChainService.quoteCrossChainSwap(swapParams)
       console.log('Cross-chain swap quote:', quote)
 
-      // Check all required approvals
+      // Check all required approvals (4 total)
       console.log('Checking all required approvals...')
       const approvalStatus = await crossChainService.checkAllApprovals(swapParams, address)
       console.log('Approval status:', approvalStatus)
 
-      // Handle source token approval
-      if (!approvalStatus.sourceTokenApproved) {
-        console.log('Approving source token for CrossChain router...')
-        await crossChainService.approveToken(sourceToken.address, amountInWei.toString())
-        console.log('✅ Source token approved!')
-      }
+      // Execute all required approvals (4 approvals total)
+      const needsApprovals = !approvalStatus.sourceTokenForRouterApproved || 
+                           !approvalStatus.sourceTokenForCrossChainApproved ||
+                           !approvalStatus.stablecoinForRouterApproved ||
+                           !approvalStatus.stablecoinForCrossChainApproved
 
-      // Handle stablecoin approval for DEX router
-      if (!approvalStatus.stablecoinApproved) {
-        console.log('Approving PFUSD stablecoin for DEX router...')
-        const requiredStablecoinApproval = BigInt(approvalStatus.estimatedStableAmount) * BigInt(2) // 2x for safety
-        await crossChainService.approveStablecoinForDEX(sourceChain.id, requiredStablecoinApproval.toString())
-        console.log('✅ PFUSD stablecoin approved!')
+      if (needsApprovals) {
+        console.log('🔐 Executing all required approvals...')
+        const approvalResult = await crossChainService.executeAllApprovals(swapParams)
+        console.log(`✅ All approvals completed! Total transactions: ${approvalResult.totalApprovals}`)
+      } else {
+        console.log('✅ All approvals already exist!')
       }
 
       console.log('All approvals completed. Executing cross-chain swap...')

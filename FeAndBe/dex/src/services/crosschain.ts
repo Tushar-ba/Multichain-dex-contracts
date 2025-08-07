@@ -162,12 +162,15 @@ export class CrossChainService {
       // First estimate the stable amount from source swap
       const estimatedStableAmount = await this.estimateSwapOutput(params.sourceToken, params.amountIn)
       
-      // Quote LayerZero fees
+      // Get destination chain's stablecoin address (this is what the contract expects)
+      const destinationStablecoinAddress = this.getPFUSDAddress(params.destinationChainId)
+      
+      // Quote LayerZero fees using destination chain's stablecoin address
       const options = '0x' // Default options
       const quotedFee = await router.quoteCrossChainSwap(
         destinationEID,
         params.recipient,
-        params.destinationToken,
+        destinationStablecoinAddress, // Use destination chain's stablecoin address
         estimatedStableAmount,
         params.amountOutMin,
         options,
@@ -184,14 +187,27 @@ export class CrossChainService {
       console.warn('Fee quotation failed, using fallback estimates:', error)
       
       // Fallback estimates if contract call fails
-      const estimatedStableAmount = await this.estimateSwapOutput(params.sourceToken, params.amountIn)
-      const fallbackFee = ethers.parseEther('0.5') // 0.5 ETH fallback
-      
-      return {
-        estimatedStableAmount,
-        layerZeroFee: fallbackFee.toString(),
-        totalFeeETH: fallbackFee.toString(),
-        estimatedTime: '2-5 minutes'
+      try {
+        const estimatedStableAmount = await this.estimateSwapOutput(params.sourceToken, params.amountIn)
+        const fallbackFee = ethers.parseEther('0.5') // 0.5 ETH fallback
+        
+        return {
+          estimatedStableAmount,
+          layerZeroFee: fallbackFee.toString(),
+          totalFeeETH: fallbackFee.toString(),
+          estimatedTime: '2-5 minutes'
+        }
+      } catch (estimateError) {
+        // Complete fallback if even estimation fails
+        const fallbackStableAmount = params.amountIn // Use input amount as fallback
+        const fallbackFee = ethers.parseEther('0.5')
+        
+        return {
+          estimatedStableAmount: fallbackStableAmount,
+          layerZeroFee: fallbackFee.toString(),
+          totalFeeETH: fallbackFee.toString(),
+          estimatedTime: '2-5 minutes'
+        }
       }
     }
   }
@@ -302,11 +318,12 @@ export class CrossChainService {
 
     // Quote fees
     console.log('\n💸 === FEE QUOTATION ===')
+    const destinationStablecoinAddress = this.getPFUSDAddress(params.destinationChainId)
     try {
       const quotedFee = await router.quoteCrossChainSwap(
         destinationEID,
         params.recipient,
-        params.destinationToken,
+        destinationStablecoinAddress, // Use destination chain's stablecoin address
         estimatedStableAmount,
         params.amountOutMin,
         options,
@@ -330,7 +347,7 @@ export class CrossChainService {
       destinationEID,
       params.recipient,
       params.sourceToken,
-      params.destinationToken,
+      destinationStablecoinAddress, // Use destination chain's stablecoin address
       params.amountIn,
       params.amountOutMin,
       options,
@@ -358,22 +375,18 @@ export class CrossChainService {
     return receipt
   }
 
-  // Check all required approvals for cross-chain swap
+  // Check all required approvals for cross-chain swap (4 approvals total)
   async checkAllApprovals(params: CrossChainSwapParams, owner: string): Promise<{
-    sourceTokenApproved: boolean
-    stablecoinApproved: boolean
+    sourceTokenForRouterApproved: boolean
+    sourceTokenForCrossChainApproved: boolean
+    stablecoinForRouterApproved: boolean
+    stablecoinForCrossChainApproved: boolean
     estimatedStableAmount: string
   }> {
-    // Check source token approval for CrossChain router
-    const sourceTokenContract = new ethers.Contract(
-      params.sourceToken,
-      ['function allowance(address owner, address spender) view returns (uint256)'],
-      this.provider
-    )
-
+    // Get contract addresses
     const crossChainRouterAddress = CROSSCHAIN_ROUTER_ADDRESSES[params.sourceChainId]
-    const sourceAllowance = await sourceTokenContract.allowance(owner, crossChainRouterAddress)
-    const sourceTokenApproved = BigInt(sourceAllowance.toString()) >= BigInt(params.amountIn)
+    const dexRouterAddress = this.getDEXRouterAddress(params.sourceChainId)
+    const stablecoinAddress = this.getPFUSDAddress(params.sourceChainId)
 
     // Estimate stable amount for stablecoin approval check
     let estimatedStableAmount: string
@@ -383,24 +396,140 @@ export class CrossChainService {
       estimatedStableAmount = params.amountIn // Fallback
     }
 
-    // Check stablecoin approval for DEX router
-    const stablecoinAddress = this.getPFUSDAddress(params.sourceChainId)
-    const dexRouterAddress = this.getDEXRouterAddress(params.sourceChainId)
-    
+    // Check source token approvals
+    const sourceTokenContract = new ethers.Contract(
+      params.sourceToken,
+      ['function allowance(address owner, address spender) view returns (uint256)'],
+      this.provider
+    )
+
+    // 1. Source token approval for DEX router (for initial swap)
+    const sourceRouterAllowance = await sourceTokenContract.allowance(owner, dexRouterAddress)
+    const sourceTokenForRouterApproved = BigInt(sourceRouterAllowance.toString()) >= BigInt(params.amountIn)
+
+    // 2. Source token approval for CrossChain router (for cross-chain transfer)
+    const sourceCrossChainAllowance = await sourceTokenContract.allowance(owner, crossChainRouterAddress)
+    const sourceTokenForCrossChainApproved = BigInt(sourceCrossChainAllowance.toString()) >= BigInt(params.amountIn)
+
+    // Check stablecoin approvals
     const stablecoinContract = new ethers.Contract(
       stablecoinAddress,
       ['function allowance(address owner, address spender) view returns (uint256)'],
       this.provider
     )
 
-    const stablecoinAllowance = await stablecoinContract.allowance(owner, dexRouterAddress)
     const requiredStablecoinApproval = BigInt(estimatedStableAmount) * BigInt(2) // 2x for safety
-    const stablecoinApproved = BigInt(stablecoinAllowance.toString()) >= requiredStablecoinApproval
+
+    // 3. Stablecoin approval for DEX router (for destination swap)
+    const stablecoinRouterAllowance = await stablecoinContract.allowance(owner, dexRouterAddress)
+    const stablecoinForRouterApproved = BigInt(stablecoinRouterAllowance.toString()) >= requiredStablecoinApproval
+
+    // 4. Stablecoin approval for CrossChain router (for cross-chain operations)
+    const stablecoinCrossChainAllowance = await stablecoinContract.allowance(owner, crossChainRouterAddress)
+    const stablecoinForCrossChainApproved = BigInt(stablecoinCrossChainAllowance.toString()) >= requiredStablecoinApproval
 
     return {
-      sourceTokenApproved,
-      stablecoinApproved,
+      sourceTokenForRouterApproved,
+      sourceTokenForCrossChainApproved,
+      stablecoinForRouterApproved,
+      stablecoinForCrossChainApproved,
       estimatedStableAmount
+    }
+  }
+
+  // Execute all 4 required approvals for cross-chain swap
+  async executeAllApprovals(params: CrossChainSwapParams): Promise<{
+    approvalTxs: any[]
+    totalApprovals: number
+  }> {
+    if (!this.signer) throw new Error('Signer required for approvals')
+
+    const userAddress = await this.signer.getAddress()
+    const approvalStatus = await this.checkAllApprovals(params, userAddress)
+    const approvalTxs: any[] = []
+
+    // Get contract addresses
+    const crossChainRouterAddress = CROSSCHAIN_ROUTER_ADDRESSES[params.sourceChainId]
+    const dexRouterAddress = this.getDEXRouterAddress(params.sourceChainId)
+    const stablecoinAddress = this.getPFUSDAddress(params.sourceChainId)
+
+    const requiredStablecoinApproval = BigInt(approvalStatus.estimatedStableAmount) * BigInt(2)
+
+    console.log('\n🔐 === EXECUTING ALL REQUIRED APPROVALS ===')
+
+    // 1. Approve source token for DEX router
+    if (!approvalStatus.sourceTokenForRouterApproved) {
+      console.log('📝 1/4: Approving source token for DEX router...')
+      const sourceTokenContract = new ethers.Contract(
+        params.sourceToken,
+        ['function approve(address spender, uint256 amount) returns (bool)'],
+        this.signer
+      )
+      const tx1 = await sourceTokenContract.approve(dexRouterAddress, params.amountIn, { gasLimit: 100000 })
+      console.log(`🚀 TX1: ${tx1.hash}`)
+      await tx1.wait()
+      approvalTxs.push(tx1)
+      console.log('✅ Source token approved for DEX router!')
+    } else {
+      console.log('✅ 1/4: Source token already approved for DEX router')
+    }
+
+    // 2. Approve source token for CrossChain router
+    if (!approvalStatus.sourceTokenForCrossChainApproved) {
+      console.log('📝 2/4: Approving source token for CrossChain router...')
+      const sourceTokenContract = new ethers.Contract(
+        params.sourceToken,
+        ['function approve(address spender, uint256 amount) returns (bool)'],
+        this.signer
+      )
+      const tx2 = await sourceTokenContract.approve(crossChainRouterAddress, params.amountIn, { gasLimit: 100000 })
+      console.log(`🚀 TX2: ${tx2.hash}`)
+      await tx2.wait()
+      approvalTxs.push(tx2)
+      console.log('✅ Source token approved for CrossChain router!')
+    } else {
+      console.log('✅ 2/4: Source token already approved for CrossChain router')
+    }
+
+    // 3. Approve stablecoin for DEX router
+    if (!approvalStatus.stablecoinForRouterApproved) {
+      console.log('📝 3/4: Approving stablecoin for DEX router...')
+      const stablecoinContract = new ethers.Contract(
+        stablecoinAddress,
+        ['function approve(address spender, uint256 amount) returns (bool)'],
+        this.signer
+      )
+      const tx3 = await stablecoinContract.approve(dexRouterAddress, requiredStablecoinApproval.toString(), { gasLimit: 100000 })
+      console.log(`🚀 TX3: ${tx3.hash}`)
+      await tx3.wait()
+      approvalTxs.push(tx3)
+      console.log('✅ Stablecoin approved for DEX router!')
+    } else {
+      console.log('✅ 3/4: Stablecoin already approved for DEX router')
+    }
+
+    // 4. Approve stablecoin for CrossChain router
+    if (!approvalStatus.stablecoinForCrossChainApproved) {
+      console.log('📝 4/4: Approving stablecoin for CrossChain router...')
+      const stablecoinContract = new ethers.Contract(
+        stablecoinAddress,
+        ['function approve(address spender, uint256 amount) returns (bool)'],
+        this.signer
+      )
+      const tx4 = await stablecoinContract.approve(crossChainRouterAddress, requiredStablecoinApproval.toString(), { gasLimit: 100000 })
+      console.log(`🚀 TX4: ${tx4.hash}`)
+      await tx4.wait()
+      approvalTxs.push(tx4)
+      console.log('✅ Stablecoin approved for CrossChain router!')
+    } else {
+      console.log('✅ 4/4: Stablecoin already approved for CrossChain router')
+    }
+
+    console.log(`\n🎉 All approvals completed! Total transactions: ${approvalTxs.length}`)
+
+    return {
+      approvalTxs,
+      totalApprovals: approvalTxs.length
     }
   }
 
