@@ -161,6 +161,29 @@ export const sepolia = defineChain({
   testnet: true,
 })
 
+export const holesky = defineChain({
+  id: 17000,
+  name: 'Holesky',
+  network: 'holesky',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'Ethereum',
+    symbol: 'ETH',
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://ethereum-holesky-rpc.publicnode.com'],
+    },
+    public: {
+      http: ['https://ethereum-holesky-rpc.publicnode.com'],
+    },
+  },
+  blockExplorers: {
+    default: { name: 'Holesky Explorer', url: 'https://holesky.etherscan.io' },
+  },
+  testnet: true,
+})
+
 export const supportedChains = [
   sepolia,
   polygonAmoy,
@@ -169,4 +192,5 @@ export const supportedChains = [
   avalancheFuji,
   bscTestnet,
   baseSepolia,
+  holesky,
 ]
