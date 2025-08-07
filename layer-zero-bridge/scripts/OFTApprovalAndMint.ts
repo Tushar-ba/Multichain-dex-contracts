@@ -2,15 +2,15 @@ import { ethers } from "hardhat";
 
 async function main() {
     const [deployer] = await ethers.getSigners();
-    const CustomStablecoinOFT = await ethers.getContractAt("CustomStablecoinOFT", "0x0a44Dc381949F6128Ca0615B4c68F0D15818dE74");
+    const CustomStablecoinOFT = await ethers.getContractAt("CustomStablecoinOFT", "0xfAe78B00a8e7d9eDd1cCFBa0Ca61be311Ce59C08");
     const amount = ethers.utils.parseUnits("10000000",18);
     const address = "0x49f51e3C94B459677c3B1e611DB3E44d4E6b1D55"
     const mint = await CustomStablecoinOFT.mint(address, amount);
     await mint.wait();
-    const mintToRouter = await CustomStablecoinOFT.mint("0xC411824F1695feeC0f9b8C3d4810c2FD1AB1000a", amount);
+    const mintToRouter = await CustomStablecoinOFT.mint("0x3c7Fe5125Df4BB7Cc6f156E64Fd1949F07B9fA4d", amount);
     await mintToRouter.wait();
     console.log("Minted");
-    const CrossChainRouter  = "0xC411824F1695feeC0f9b8C3d4810c2FD1AB1000a"
+    const CrossChainRouter  = "0x3c7Fe5125Df4BB7Cc6f156E64Fd1949F07B9fA4d"
     const Router = "0x1F2Ea7012Be2Fb0Ba2ce8B7B2A1ab3357Ab2315d"    
     const tx = await CustomStablecoinOFT.approve(CrossChainRouter, amount);
     console.log("Approved CrossChainRouter");

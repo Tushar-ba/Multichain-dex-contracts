@@ -17,7 +17,8 @@ const RPC_URLS = {
   11155420: 'https://sepolia.optimism.io',
   43113: 'https://api.avax-test.network/ext/bc/C/rpc',
   97: 'https://data-seed-prebsc-1-s1.binance.org:8545',
-  84532: 'https://sepolia.base.org'
+  84532: 'https://sepolia.base.org',
+  17000: 'https://ethereum-holesky-rpc.publicnode.com'
 };
 
 const balanceController = {

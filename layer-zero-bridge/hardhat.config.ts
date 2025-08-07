@@ -33,12 +33,12 @@ const config: HardhatUserConfig = {
     },
     'holesky': {
         eid: EndpointId.HOLESKY_V2_TESTNET,
-        url: 'https://holesky.drpc.org',
+        url: 'https://api.avax-test.network/ext/bc/C/rpc',
         accounts: accounts ? [accounts] : [],
     },
     'avalanche-fuji-testnet': {
         eid: EndpointId.AVALANCHE_V2_TESTNET,
-        url: 'https://avalanche-fuji.drpc.org',
+        url: 'https://api.avax-test.network/ext/bc/C/rpc',
         accounts: accounts ? [accounts] : [],
     },
     'optimism-sepolia-testnet': {

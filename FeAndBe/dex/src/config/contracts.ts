@@ -57,7 +57,7 @@ export const CONTRACT_ADDRESSES = {
   },
   // Ethereum Holesky (17000)
   17000: {
-    factory: '0x0000000000000000000000000000000000000000', // Add your factory if available
+    factory: '0x573654CeB31571eE5B66CCa78FF064338fb6B040', // Add your factory if available
     router: '0x1F2Ea7012Be2Fb0Ba2ce8B7B2A1ab3357Ab2315d', // Existing Holesky router
     weth: '0x0000000000000000000000000000000000000000', // ETH
     crossChainRouter: '0x3c7Fe5125Df4BB7Cc6f156E64Fd1949F07B9fA4d',

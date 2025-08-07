@@ -27,18 +27,18 @@ export function ChainSelector({ selectedChain, onChainSelect, label, excludeChai
 
   const availableChains = supportedChains.filter(chain => chain.id !== excludeChain)
 
-  const getChainIcon = (chainId: number) => {
-    const iconMap: { [key: number]: string } = {
-      11155111: '🔷', // Ethereum Sepolia
-      80002: '🟣', // Polygon Amoy
-      421614: '🔵', // Arbitrum Sepolia
-      11155420: '🔴', // Optimism Sepolia
-      43113: '🔺', // Avalanche Fuji
-      97: '🟡', // BSC Testnet
-      84532: '🔵', // Base Sepolia
-      17000: '💎', // Holesky
+  const getChainLogo = (chainId: number) => {
+    const logoMap: { [key: number]: string } = {
+      11155111: '/holesky.png', // Ethereum Sepolia (using Holesky logo as requested)
+      80002: '/Polygon-logo.webp', // Polygon Amoy
+      421614: '/arbitrum.webp', // Arbitrum Sepolia
+      11155420: '/optimism.webp', // Optimism Sepolia
+      43113: '/avalanche-avax-logo.webp', // Avalanche Fuji
+      97: '/bnb.webp', // BSC Testnet
+      84532: '/base.png', // Base Sepolia
+      17000: '/holesky.png', // Holesky
     }
-    return iconMap[chainId] || '⚪'
+    return logoMap[chainId] || '/placeholder-token.png'
   }
 
   return (
@@ -56,7 +56,15 @@ export function ChainSelector({ selectedChain, onChainSelect, label, excludeChai
           {selectedChain ? (
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <span className="text-2xl">{getChainIcon(selectedChain.id)}</span>
+                <img
+                  src={getChainLogo(selectedChain.id)}
+                  alt={selectedChain.name}
+                  className="w-8 h-8 rounded-full"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = '/placeholder-token.png';
+                  }}
+                />
                 <div>
                   <div className="font-medium text-gray-900">{selectedChain.name}</div>
                   <div className="text-sm text-gray-500">{selectedChain.nativeCurrency.symbol}</div>
@@ -103,7 +111,15 @@ export function ChainSelector({ selectedChain, onChainSelect, label, excludeChai
                 className="w-full px-4 py-3 text-left hover:bg-gray-50 focus:outline-none focus:bg-gray-50 transition-colors duration-150 first:rounded-t-xl last:rounded-b-xl"
               >
                 <div className="flex items-center space-x-3">
-                  <span className="text-2xl">{getChainIcon(chain.id)}</span>
+                  <img
+                    src={getChainLogo(chain.id)}
+                    alt={chain.name}
+                    className="w-8 h-8 rounded-full"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = '/placeholder-token.png';
+                    }}
+                  />
                   <div>
                     <div className="font-medium text-gray-900">{chain.name}</div>
                     <div className="text-sm text-gray-500">{chain.nativeCurrency.symbol}</div>

@@ -642,6 +642,72 @@ const tokens = [
         }
     },
     {
+        address: '0x2173cbaA497a30Bc5b89E52e12C092ad2D483FeE',
+        data: {
+            name: 'USD Coin',
+            symbol: 'USDC',
+            uri: 'https://tse2.mm.bing.net/th/id/OIP.x2szykLFcwq3fzNBzpdkpwHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3',
+            decimals: 18,
+            chain: "Holesky",
+            chainId: 17000
+        }
+    },
+    {
+        address: '0x32c2aeDF58244188d04658BFE940b8168a82b56e',
+        data: {
+            name: 'Maga',
+            symbol: 'TRUMP',
+            uri: 'https://images-na.ssl-images-amazon.com/images/I/71zkn4UyOPL.jpg',
+            decimals: 18,
+            chain: "Holesky",
+            chainId: 17000
+        }
+    },
+    {
+        address: '0x5b086Fdf98079dD43dF17d47bB25b8F36e644EAC',
+        data: {
+            name: 'Wrapped Ether',
+            symbol: 'WETH',
+            uri: 'https://raw.githubusercontent.com/Tushar-ba/metadata/refs/heads/main/Ethereum-Logo-PNG-Free-Image.png',
+            decimals: 18,
+            chain: "Holesky",
+            chainId: 17000
+        }
+    },
+    {
+        address: '0x146881d24E0434E7120Bad8D717956795b907069',
+        data: {
+            name: 'Wrapped Solana',
+            symbol: 'SOL',
+            uri: 'https://tse3.mm.bing.net/th/id/OIP.PbukzBkl3iJvLDCam7370wHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3',
+            decimals: 18,
+            chain: "Holesky",
+            chainId: 17000
+        }
+    },
+    {
+        address: '0x450583BC604f2308392C2ce5651144fe8b71e40f',
+        data: {
+            name: 'Sui',
+            symbol: 'SUI',
+            uri: 'https://raw.githubusercontent.com/Tushar-ba/metadata/main/sui-sui-logo.png',
+            decimals: 18,
+            chain: "Holesky",
+            chainId: 17000
+        }
+    },
+    {
+        address: '0xD7F519EAA9529e4380974D6AF18309Dc892A7c48',
+        data: {
+            name: 'Dogecoin',
+            symbol: 'DOGE',
+            uri: 'https://raw.githubusercontent.com/Tushar-ba/metadata/main/dogecoin-doge-logo.png',
+            decimals: 18,
+            chain: "Holesky",
+            chainId: 17000
+        }
+    },
+    {
         address: '0xfAe78B00a8e7d9eDd1cCFBa0Ca61be311Ce59C08',
         data: {
             name: 'PF Stable Coin',

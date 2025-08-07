@@ -3,11 +3,12 @@
 import { useState, useEffect } from "react";
 import { useAccount, useChainId } from "wagmi";
 import { ethers } from "ethers";
-import { TokenSelector } from "./TokenSelector";
+import { InlineLiquidityTokenSelector } from "./InlineLiquidityTokenSelector";
 import { Token } from "@/types";
 import { ContractService } from "@/services/contracts";
 import { ApiService } from "@/services/api";
 import { getContractAddress } from "@/config/contracts";
+import { supportedChains } from "@/config/chains";
 
 export function AddLiquidity() {
   const { address, isConnected } = useAccount();
@@ -20,6 +21,23 @@ export function AddLiquidity() {
   const [loading, setLoading] = useState(false);
   const [pairExists, setPairExists] = useState<boolean | null>(null);
   const [mounted, setMounted] = useState(false);
+
+  // Get current chain info
+  const currentChain = supportedChains.find(chain => chain.id === chainId);
+  
+  const getChainLogo = (chainId: number) => {
+    const logoMap: { [key: number]: string } = {
+      11155111: '/holesky.png',
+      80002: '/Polygon-logo.webp',
+      421614: '/arbitrum.webp',
+      11155420: '/optimism.webp',
+      43113: '/avalanche-avax-logo.webp',
+      97: '/bnb.webp',
+      84532: '/base.png',
+      17000: '/holesky.png',
+    }
+    return logoMap[chainId] || '/placeholder-token.png'
+  }
 
   useEffect(() => {
     setMounted(true);
@@ -260,11 +278,9 @@ export function AddLiquidity() {
 
   if (!mounted) {
     return (
-      <div className="max-w-2xl mx-auto p-8 bg-white rounded-2xl shadow-2xl border border-gray-100">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
-            Add Liquidity
-          </h2>
+      <div className="max-w-lg mx-auto p-6 bg-white rounded-2xl shadow-lg border border-gray-200">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-1">Add Liquidity</h2>
           <p className="text-gray-500">Loading...</p>
         </div>
       </div>
@@ -273,164 +289,163 @@ export function AddLiquidity() {
 
   if (!isConnected) {
     return (
-      <div className="max-w-2xl mx-auto p-8 bg-white rounded-2xl shadow-2xl border border-gray-100">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
-            Add Liquidity
-          </h2>
-          <p className="text-gray-500">
-            Please connect your wallet to add liquidity
-          </p>
+      <div className="max-w-lg mx-auto p-6 bg-white rounded-2xl shadow-lg border border-gray-200">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-1">Add Liquidity</h2>
+          <p className="text-gray-500">Please connect your wallet to add liquidity</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-8 bg-white rounded-2xl shadow-2xl border border-gray-100">
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
-          Add Liquidity
-        </h2>
-        <p className="text-gray-500">Provide liquidity to earn trading fees</p>
+    <div className="max-w-lg mx-auto p-6 bg-white rounded-2xl shadow-lg border border-gray-200">
+      <div className="text-center mb-6">
+        <div className="flex items-center justify-between">
+          <button className="p-2 text-gray-400 hover:text-gray-600">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <h2 className="text-2xl font-bold text-gray-900">Add Liquidity</h2>
+          <button className="p-2 text-gray-400 hover:text-gray-600">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </button>
+        </div>
+        
+        {/* Chain Info */}
+        {currentChain && (
+          <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+            <div className="flex items-center justify-center space-x-2">
+              <span className="text-sm text-gray-600">Selected Chain:</span>
+              <img
+                src={getChainLogo(currentChain.id)}
+                alt={currentChain.name}
+                className="w-5 h-5 rounded-full"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = '/placeholder-token.png';
+                }}
+              />
+              <span className="text-sm font-medium text-gray-900">{currentChain.name}</span>
+            </div>
+          </div>
+        )}
+        
+        <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+          <p className="text-sm text-blue-800">
+            <strong>Tip:</strong> When you add liquidity, you will receive pool tokens representing your position. 
+            These tokens automatically earn fees proportional to your share of the pool, and can be redeemed at any time.
+          </p>
+        </div>
       </div>
 
-      {/* Token A Selection */}
-      <div className="mb-6">
-        <label className="block text-sm font-semibold text-gray-700 mb-3">
-          First Token
-        </label>
-        <TokenSelector
-          chainId={chainId || 1}
-          selectedToken={tokenA}
-          onTokenSelect={setTokenA}
-          userAddress={address}
-          excludeToken={tokenB?.address}
-        />
-      </div>
-
-      {/* Amount A Input */}
-      {tokenA && (
-        <div className="mb-6">
-          <label className="block text-sm font-semibold text-gray-700 mb-3">
-            Amount {tokenA.data.symbol}
-          </label>
-          <div className="relative">
+      <div className="space-y-4">
+        {/* Token 1 Section */}
+        <div className="space-y-3">
+          <div className="flex justify-between items-center">
+            <span className="text-sm font-medium text-gray-700">Token 1 --</span>
+            <span className="text-sm text-gray-500">Select Token</span>
+          </div>
+          
+          <InlineLiquidityTokenSelector
+            chainId={chainId || 1}
+            selectedToken={tokenA}
+            onTokenSelect={setTokenA}
+            userAddress={address}
+            excludeToken={tokenB?.address}
+          />
+          
+          <div className="bg-gray-50 rounded-xl p-4">
             <input
               type="number"
               value={amountA}
               onChange={(e) => setAmountA(e.target.value)}
-              placeholder="0.0"
-              className="input-field pr-20"
+              placeholder="0.00"
+              className="w-full bg-transparent text-2xl font-medium text-gray-900 placeholder-gray-400 focus:outline-none"
             />
-            <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-sm font-medium text-gray-500">
-              {tokenA.data.symbol}
+            <div className="text-xs text-gray-500 mt-2">
+              Balance: 0.00
             </div>
           </div>
         </div>
-      )}
 
-      {/* Plus Icon */}
-      <div className="flex justify-center mb-6">
-        <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-          <svg
-            className="w-5 h-5 text-white"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-            />
-          </svg>
+        {/* Plus Icon */}
+        <div className="flex justify-center py-2">
+          <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+            <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+          </div>
         </div>
-      </div>
 
-      {/* Token B Selection */}
-      <div className="mb-6">
-        <label className="block text-sm font-semibold text-gray-700 mb-3">
-          Second Token
-        </label>
-        <TokenSelector
-          chainId={chainId || 1}
-          selectedToken={tokenB}
-          onTokenSelect={setTokenB}
-          userAddress={address}
-          excludeToken={tokenA?.address}
-        />
-      </div>
-
-      {/* Amount B Input */}
-      {tokenB && (
-        <div className="mb-8">
-          <label className="block text-sm font-semibold text-gray-700 mb-3">
-            Amount {tokenB.data.symbol}
-          </label>
-          <div className="relative">
+        {/* Token 2 Section */}
+        <div className="space-y-3">
+          <div className="flex justify-between items-center">
+            <span className="text-sm font-medium text-gray-700">Token 2 --</span>
+            <span className="text-sm text-gray-500">Select Token</span>
+          </div>
+          
+          <InlineLiquidityTokenSelector
+            chainId={chainId || 1}
+            selectedToken={tokenB}
+            onTokenSelect={setTokenB}
+            userAddress={address}
+            excludeToken={tokenA?.address}
+          />
+          
+          <div className="bg-gray-50 rounded-xl p-4">
             <input
               type="number"
               value={amountB}
               onChange={(e) => setAmountB(e.target.value)}
-              placeholder="0.0"
-              className="input-field pr-20"
+              placeholder="0.00"
+              className="w-full bg-transparent text-2xl font-medium text-gray-900 placeholder-gray-400 focus:outline-none"
             />
-            <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-sm font-medium text-gray-500">
-              {tokenB.data.symbol}
+            <div className="text-xs text-gray-500 mt-2">
+              Balance: 0.00
             </div>
           </div>
         </div>
-      )}
+      </div>
 
-      {/* Pair Status */}
-      {tokenA && tokenB && (
-        <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-100">
-          <div className="flex items-center gap-2">
-            <div
-              className={`w-3 h-3 rounded-full ${
-                pairExists === null
-                  ? "bg-yellow-400 animate-pulse"
-                  : pairExists
-                  ? "bg-green-400"
-                  : "bg-red-400"
-              }`}
-            ></div>
-            <span className="text-sm font-medium text-gray-700">
-              Pair Status:{" "}
-              {pairExists === null
-                ? "Checking..."
-                : pairExists
-                ? "Pool exists"
-                : "Pool does not exist"}
-            </span>
-          </div>
-        </div>
-      )}
 
-      {/* Single Action Button */}
-      {tokenA && tokenB && amountA && amountB && (
-        <button
-          type="button"
-          onClick={handleApproveAndProvideLiquidity}
-          disabled={loading}
-          className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-        >
-          {loading ? (
-            <div className="flex items-center justify-center gap-2">
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-              {pairExists === false
-                ? "Creating Pair, Approving & Adding Liquidity..."
-                : "Approving & Adding Liquidity..."}
-            </div>
-          ) : pairExists === false ? (
-            "Create Pair, Approve & Provide Liquidity"
-          ) : (
-            "Approve & Provide Liquidity"
-          )}
-        </button>
-      )}
+
+      {/* Action Button */}
+      <div className="mt-6">
+        {tokenA && tokenB && amountA && amountB ? (
+          <button
+            type="button"
+            onClick={handleApproveAndProvideLiquidity}
+            disabled={loading}
+            className="w-full bg-red-500 hover:bg-red-600 text-white font-medium py-4 px-6 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? (
+              <div className="flex items-center justify-center gap-2">
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                {pairExists === false
+                  ? "Creating Pair & Adding Liquidity..."
+                  : "Adding Liquidity..."}
+              </div>
+            ) : pairExists === false ? (
+              "Create Pair"
+            ) : (
+              "Approve & Provide Liquidity"
+            )}
+          </button>
+        ) : (
+          <button
+            type="button"
+            disabled
+            className="w-full bg-red-500 text-white font-medium py-4 px-6 rounded-xl cursor-not-allowed opacity-50"
+          >
+            Please fill in all fields to continue
+          </button>
+        )}
+      </div>
     </div>
   );
 }

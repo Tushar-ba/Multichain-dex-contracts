@@ -76,4 +76,18 @@ export class ApiService {
     const response = await this.request<any>(`/api/balances/chain/${chainId}/user/${userAddress}/all`)
     return response.data
   }
+
+  static async createCrossChainEvent(eventData: any): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/api/events/crosschain`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(eventData),
+    })
+    
+    if (!response.ok) {
+      throw new Error(`Failed to create cross-chain event: ${response.statusText}`)
+    }
+  }
 }
