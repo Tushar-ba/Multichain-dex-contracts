@@ -34,7 +34,7 @@ async function main() {
         console.log("\n📋 === GETTING CONTRACT INSTANCES ===");
         const CrossChainRouter = await ethers.getContractAt("CrossChainRouter", HOLESKY_CONFIG.CrossChainRouter);
         const SourceToken = await ethers.getContractAt("@openzeppelin/contracts/token/ERC20/IERC20.sol:IERC20", HOLESKY_CONFIG.SourceToken);
-        
+
         console.log(`✅ CrossChainRouter: ${HOLESKY_CONFIG.CrossChainRouter}`);
         console.log(`✅ Source Token (TRUMP): ${HOLESKY_CONFIG.SourceToken}`);
         console.log(`✅ Destination Token (USDC): ${AVALANCHE_CONFIG.DestinationToken}`);
@@ -45,7 +45,7 @@ async function main() {
         console.log("\n💰 === BALANCE CHECKS ===");
         const tokenBalance = await SourceToken.balanceOf(deployer.address);
         const ethBalance = await deployer.getBalance();
-        
+
         console.log(`TRUMP Balance: ${ethers.utils.formatEther(tokenBalance)}`);
         console.log(`ETH Balance: ${ethers.utils.formatEther(ethBalance)}`);
 
@@ -60,7 +60,7 @@ async function main() {
         // Check and approve tokens (same as reverswap.ts)
         console.log("\n🔐 === TOKEN APPROVAL ===");
         const currentAllowance = await SourceToken.allowance(deployer.address, HOLESKY_CONFIG.CrossChainRouter);
-        
+
         if (currentAllowance.lt(amountIn)) {
             console.log("📝 Approving tokens for CrossChainRouter...");
             const approveTx = await SourceToken.approve(HOLESKY_CONFIG.CrossChainRouter, amountIn, {
@@ -136,7 +136,7 @@ async function main() {
         console.log("⏳ Waiting for confirmation...");
 
         const receipt = await swapTx.wait();
-        
+
         if (receipt.status === 0) {
             console.error("❌ Transaction failed");
             console.log(`🔗 Check transaction: https://holesky.etherscan.io/tx/${swapTx.hash}`);
@@ -189,7 +189,7 @@ async function main() {
     } catch (error: any) {
         console.error("\n❌ === CROSS-CHAIN SWAP FAILED ===");
         console.error(`Error: ${error.message}`);
-        
+
         if (error.message.includes('Token transfer failed')) {
             console.error("💡 Check TRUMP allowance and balance");
         } else if (error.message.includes('Insufficient fee') || error.message.includes('NotEnoughNative')) {
@@ -205,7 +205,7 @@ async function main() {
             console.error("💡 CrossChain router peers not configured");
             console.error("💡 Run: npx hardhat lz:oapp:wire --oapp-config layerzero.config.ts");
         }
-        
+
         throw error;
     }
 }

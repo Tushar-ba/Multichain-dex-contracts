@@ -1,191 +1,285 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { useAccount, useChainId } from 'wagmi'
-import { ethers } from 'ethers'
-import { Chain } from '@/components/ChainSelector'
-import { InlineChainSelector } from '@/components/InlineChainSelector'
-import { InlineTokenSelector } from '@/components/InlineTokenSelector'
-import { CrossChainService } from '@/services/crosschain'
-import { ApiService } from '@/services/api'
-import { Token } from '@/types'
+import { useState, useEffect } from "react";
+import { useAccount, useChainId } from "wagmi";
+import { ethers } from "ethers";
+import { Chain } from "@/components/ChainSelector";
+import { InlineChainSelector } from "@/components/InlineChainSelector";
+import { InlineTokenSelector } from "@/components/InlineTokenSelector";
+import { CrossChainService } from "@/services/crosschain";
+import { ApiService } from "@/services/api";
+import { Token } from "@/types";
 
 export default function CrossChainSwapPage() {
-  const { address, isConnected } = useAccount()
-  const currentChainId = useChainId()
+  const { address, isConnected } = useAccount();
+  const currentChainId = useChainId();
 
-  const [sourceChain, setSourceChain] = useState<Chain | null>(null)
-  const [destinationChain, setDestinationChain] = useState<Chain | null>(null)
-  const [sourceToken, setSourceToken] = useState<Token | null>(null)
-  const [destinationToken, setDestinationToken] = useState<Token | null>(null)
-  const [sourceAmount, setSourceAmount] = useState('')
-  const [destinationAmount, setDestinationAmount] = useState('')
-  const [sourceBalance, setSourceBalance] = useState('0.00')
-  const [destinationBalance, setDestinationBalance] = useState('0.00')
-  const [loadingSourceBalance, setLoadingSourceBalance] = useState(false)
-  const [loadingDestinationBalance, setLoadingDestinationBalance] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [mounted, setMounted] = useState(false)
+  const [sourceChain, setSourceChain] = useState<Chain | null>(null);
+  const [destinationChain, setDestinationChain] = useState<Chain | null>(null);
+  const [sourceToken, setSourceToken] = useState<Token | null>(null);
+  const [destinationToken, setDestinationToken] = useState<Token | null>(null);
+  const [sourceAmount, setSourceAmount] = useState("");
+  const [destinationAmount, setDestinationAmount] = useState("");
+  const [sourceBalance, setSourceBalance] = useState("0.00");
+  const [destinationBalance, setDestinationBalance] = useState("0.00");
+  const [loadingSourceBalance, setLoadingSourceBalance] = useState(false);
+  const [loadingDestinationBalance, setLoadingDestinationBalance] =
+    useState(false);
+  const [loading, setLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [estimatedStableAmount, setEstimatedStableAmount] = useState("");
+  const [layerZeroFee, setLayerZeroFee] = useState("");
+  const [loadingEstimate, setLoadingEstimate] = useState(false);
+  const [swapRoute, setSwapRoute] = useState("");
 
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
 
   // Reset tokens when chains change
   useEffect(() => {
-    setSourceToken(null)
-    setSourceBalance('0.00')
-  }, [sourceChain])
+    setSourceToken(null);
+    setSourceBalance("0.00");
+  }, [sourceChain]);
 
   useEffect(() => {
-    setDestinationToken(null)
-    setDestinationBalance('0.00')
-  }, [destinationChain])
+    setDestinationToken(null);
+    setDestinationBalance("0.00");
+  }, [destinationChain]);
 
   // Fetch source token balance
   useEffect(() => {
     const fetchSourceBalance = async () => {
-      if (sourceToken && address && sourceChain && currentChainId === sourceChain.id) {
-        setLoadingSourceBalance(true)
+      if (
+        sourceToken &&
+        address &&
+        sourceChain &&
+        currentChainId === sourceChain.id
+      ) {
+        setLoadingSourceBalance(true);
         try {
-          const provider = new ethers.BrowserProvider(window.ethereum)
+          const provider = new ethers.BrowserProvider(window.ethereum);
           const tokenContract = new ethers.Contract(
             sourceToken.address,
-            ['function balanceOf(address owner) view returns (uint256)'],
+            ["function balanceOf(address owner) view returns (uint256)"],
             provider
-          )
-          
-          const balance = await tokenContract.balanceOf(address)
-          const formattedBalance = ethers.formatUnits(balance, sourceToken.data.decimals)
-          setSourceBalance(parseFloat(formattedBalance).toFixed(6))
+          );
+
+          const balance = await tokenContract.balanceOf(address);
+          const formattedBalance = ethers.formatUnits(
+            balance,
+            sourceToken.data.decimals
+          );
+          setSourceBalance(parseFloat(formattedBalance).toFixed(6));
         } catch (error) {
-          console.error('Error fetching source token balance:', error)
-          setSourceBalance('0.00')
+          console.error("Error fetching source token balance:", error);
+          setSourceBalance("0.00");
         } finally {
-          setLoadingSourceBalance(false)
+          setLoadingSourceBalance(false);
         }
       } else {
-        setSourceBalance('0.00')
-        setLoadingSourceBalance(false)
+        setSourceBalance("0.00");
+        setLoadingSourceBalance(false);
       }
-    }
+    };
 
-    fetchSourceBalance()
-  }, [sourceToken, address, sourceChain, currentChainId])
+    fetchSourceBalance();
+  }, [sourceToken, address, sourceChain, currentChainId]);
 
   // Fetch destination token balance
   useEffect(() => {
     const fetchDestinationBalance = async () => {
-      if (destinationToken && address && destinationChain && currentChainId === destinationChain.id) {
-        setLoadingDestinationBalance(true)
+      if (
+        destinationToken &&
+        address &&
+        destinationChain &&
+        currentChainId === destinationChain.id
+      ) {
+        setLoadingDestinationBalance(true);
         try {
-          const provider = new ethers.BrowserProvider(window.ethereum)
+          const provider = new ethers.BrowserProvider(window.ethereum);
           const tokenContract = new ethers.Contract(
             destinationToken.address,
-            ['function balanceOf(address owner) view returns (uint256)'],
+            ["function balanceOf(address owner) view returns (uint256)"],
             provider
-          )
-          
-          const balance = await tokenContract.balanceOf(address)
-          const formattedBalance = ethers.formatUnits(balance, destinationToken.data.decimals)
-          setDestinationBalance(parseFloat(formattedBalance).toFixed(6))
+          );
+
+          const balance = await tokenContract.balanceOf(address);
+          const formattedBalance = ethers.formatUnits(
+            balance,
+            destinationToken.data.decimals
+          );
+          setDestinationBalance(parseFloat(formattedBalance).toFixed(6));
         } catch (error) {
-          console.error('Error fetching destination token balance:', error)
-          setDestinationBalance('0.00')
+          console.error("Error fetching destination token balance:", error);
+          setDestinationBalance("0.00");
         } finally {
-          setLoadingDestinationBalance(false)
+          setLoadingDestinationBalance(false);
         }
       } else {
-        setDestinationBalance('0.00')
-        setLoadingDestinationBalance(false)
+        setDestinationBalance("0.00");
+        setLoadingDestinationBalance(false);
       }
-    }
+    };
 
-    fetchDestinationBalance()
-  }, [destinationToken, address, destinationChain, currentChainId])
+    fetchDestinationBalance();
+  }, [destinationToken, address, destinationChain, currentChainId]);
 
-  // Calculate estimated destination amount using real cross-chain quotes
+  // Calculate estimated amounts and fees using contract functions
   useEffect(() => {
-    const calculateQuote = async () => {
-      if (sourceAmount && sourceToken && destinationToken && sourceChain && destinationChain && address) {
+    const calculateEstimates = async () => {
+      if (
+        sourceAmount &&
+        sourceToken &&
+        destinationToken &&
+        sourceChain &&
+        destinationChain &&
+        address
+      ) {
+        setLoadingEstimate(true);
         try {
-          const provider = new ethers.BrowserProvider(window.ethereum)
-          const crossChainService = new CrossChainService(provider, undefined, sourceChain.id)
-          
-          const amountInWei = ethers.parseUnits(sourceAmount, sourceToken.data.decimals)
-          
+          const provider = new ethers.BrowserProvider(window.ethereum);
+          const crossChainService = new CrossChainService(
+            provider,
+            undefined,
+            sourceChain.id
+          );
+
+          const amountInWei = ethers.parseUnits(
+            sourceAmount,
+            sourceToken.data.decimals
+          );
+
+          // Step 1: Estimate source token -> stablecoin swap using contract
+          console.log("🔍 Estimating source swap output...");
+          const estimatedStable = await crossChainService.estimateSwapOutput(
+            sourceToken.address,
+            amountInWei.toString()
+          );
+          const stableAmountFormatted = ethers.formatUnits(estimatedStable, 18);
+          setEstimatedStableAmount(stableAmountFormatted);
+
+          // Step 2: Get LayerZero fee quote
           const swapParams = {
             sourceChainId: sourceChain.id,
             destinationChainId: destinationChain.id,
             sourceToken: sourceToken.address,
             destinationToken: destinationToken.address,
             amountIn: amountInWei.toString(),
-            amountOutMin: '0',
-            recipient: address
-          }
+            amountOutMin: "0",
+            recipient: address,
+          };
 
-          const quote = await crossChainService.quoteCrossChainSwap(swapParams)
-          
-          // Estimate destination amount (stable amount with 2% slippage for destination swap)
-          const stableAmount = parseFloat(ethers.formatUnits(quote.estimatedStableAmount, 18))
-          const estimatedDestination = (stableAmount * 0.98).toFixed(6) // 2% slippage
-          
-          setDestinationAmount(estimatedDestination)
+          console.log("💸 Getting LayerZero fee quote...");
+          const quote = await crossChainService.quoteCrossChainSwap(swapParams);
+          const feeInEth = ethers.formatEther(quote.layerZeroFee);
+          setLayerZeroFee(feeInEth);
+
+          // Step 3: Estimate destination swap (stablecoin -> destination token)
+          // For now, use 2% slippage estimation for destination swap
+          const estimatedDestination = (
+            parseFloat(stableAmountFormatted) * 0.98
+          ).toFixed(6);
+          setDestinationAmount(estimatedDestination);
+
+          // Step 4: Set swap route description
+          const route = `${sourceToken.data.symbol} (${sourceChain.name}) → PFUSD → ${destinationToken.data.symbol} (${destinationChain.name})`;
+          setSwapRoute(route);
+
+          console.log("✅ Estimates calculated:", {
+            stableAmount: stableAmountFormatted,
+            layerZeroFee: feeInEth,
+            destinationAmount: estimatedDestination,
+            route,
+          });
         } catch (error) {
-          console.error('Error calculating cross-chain quote:', error)
+          console.error("Error calculating estimates:", error);
           // Fallback to simple calculation
-          const rate = 0.95 // 5% slippage/fees for cross-chain
-          const estimated = (parseFloat(sourceAmount) * rate).toFixed(6)
-          setDestinationAmount(estimated)
+          const rate = 0.95; // 5% slippage/fees for cross-chain
+          const estimated = (parseFloat(sourceAmount) * rate).toFixed(6);
+          setDestinationAmount(estimated);
+          setEstimatedStableAmount("");
+          setLayerZeroFee("");
+          setSwapRoute("");
+        } finally {
+          setLoadingEstimate(false);
         }
       } else {
-        setDestinationAmount('')
+        setDestinationAmount("");
+        setEstimatedStableAmount("");
+        setLayerZeroFee("");
+        setSwapRoute("");
+        setLoadingEstimate(false);
       }
-    }
+    };
 
-    const timeoutId = setTimeout(calculateQuote, 500) // Debounce API calls
-    return () => clearTimeout(timeoutId)
-  }, [sourceAmount, sourceToken, destinationToken, sourceChain, destinationChain, address])
+    const timeoutId = setTimeout(calculateEstimates, 800); // Debounce API calls
+    return () => clearTimeout(timeoutId);
+  }, [
+    sourceAmount,
+    sourceToken,
+    destinationToken,
+    sourceChain,
+    destinationChain,
+    address,
+  ]);
 
   const handleSwapChains = () => {
-    const tempChain = sourceChain
-    const tempToken = sourceToken
-    const tempAmount = sourceAmount
-    const tempBalance = sourceBalance
+    const tempChain = sourceChain;
+    const tempToken = sourceToken;
+    const tempAmount = sourceAmount;
+    const tempBalance = sourceBalance;
 
-    setSourceChain(destinationChain)
-    setDestinationChain(tempChain)
-    setSourceToken(destinationToken)
-    setDestinationToken(tempToken)
-    setSourceAmount(destinationAmount)
-    setDestinationAmount(tempAmount)
-    setSourceBalance(destinationBalance)
-    setDestinationBalance(tempBalance)
-  }
+    setSourceChain(destinationChain);
+    setDestinationChain(tempChain);
+    setSourceToken(destinationToken);
+    setDestinationToken(tempToken);
+    setSourceAmount(destinationAmount);
+    setDestinationAmount(tempAmount);
+    setSourceBalance(destinationBalance);
+    setDestinationBalance(tempBalance);
+  };
 
   const handleMaxAmount = () => {
     if (sourceBalance && parseFloat(sourceBalance) > 0) {
-      setSourceAmount(sourceBalance)
+      setSourceAmount(sourceBalance);
     }
-  }
+  };
 
   const handleCrossChainSwap = async () => {
-    if (!sourceChain || !destinationChain || !sourceToken || !destinationToken || !sourceAmount || !address) {
-      alert('Please fill in all fields and connect your wallet')
-      return
+    if (
+      !sourceChain ||
+      !destinationChain ||
+      !sourceToken ||
+      !destinationToken ||
+      !sourceAmount ||
+      !address
+    ) {
+      alert("Please fill in all fields and connect your wallet");
+      return;
     }
 
-    setLoading(true)
+    setLoading(true);
     try {
-      const provider = new ethers.BrowserProvider(window.ethereum)
-      const signer = await provider.getSigner()
-      const crossChainService = new CrossChainService(provider, signer, sourceChain.id)
-      
-      const amountInWei = ethers.parseUnits(sourceAmount, sourceToken.data.decimals)
-      const amountOutMinWei = ethers.parseUnits(destinationAmount || '0', destinationToken.data.decimals)
-      
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const crossChainService = new CrossChainService(
+        provider,
+        signer,
+        sourceChain.id
+      );
+
+      const amountInWei = ethers.parseUnits(
+        sourceAmount,
+        sourceToken.data.decimals
+      );
+      const amountOutMinWei = ethers.parseUnits(
+        destinationAmount || "0",
+        destinationToken.data.decimals
+      );
+
       // Calculate 5% slippage for minimum output
-      const minAmountOut = (amountOutMinWei * BigInt(95)) / BigInt(100)
+      const minAmountOut = (amountOutMinWei * BigInt(95)) / BigInt(100);
 
       const swapParams = {
         sourceChainId: sourceChain.id,
@@ -194,54 +288,109 @@ export default function CrossChainSwapPage() {
         destinationToken: destinationToken.address,
         amountIn: amountInWei.toString(),
         amountOutMin: minAmountOut.toString(),
-        recipient: address
-      }
+        recipient: address,
+      };
 
-      console.log('Getting quote for cross-chain swap...')
-      
+      console.log("Getting quote for cross-chain swap...");
+
       // Get quote for fees
-      const quote = await crossChainService.quoteCrossChainSwap(swapParams)
-      console.log('Cross-chain swap quote:', quote)
+      const quote = await crossChainService.quoteCrossChainSwap(swapParams);
+      console.log("Cross-chain swap quote:", quote);
 
       // Check all required approvals (4 total)
-      console.log('Checking all required approvals...')
-      const approvalStatus = await crossChainService.checkAllApprovals(swapParams, address)
-      console.log('Approval status:', approvalStatus)
+      console.log("Checking all required approvals...");
+      const approvalStatus = await crossChainService.checkAllApprovals(
+        swapParams,
+        address
+      );
+      console.log("Approval status:", approvalStatus);
 
       // Execute all required approvals (4 approvals total)
-      const needsApprovals = !approvalStatus.sourceTokenForRouterApproved || 
-                           !approvalStatus.sourceTokenForCrossChainApproved ||
-                           !approvalStatus.stablecoinForRouterApproved ||
-                           !approvalStatus.stablecoinForCrossChainApproved
+      const needsApprovals =
+        !approvalStatus.sourceTokenForRouterApproved ||
+        !approvalStatus.sourceTokenForCrossChainApproved ||
+        !approvalStatus.stablecoinForRouterApproved ||
+        !approvalStatus.stablecoinForCrossChainApproved;
 
       if (needsApprovals) {
-        console.log('🔐 Executing all required approvals...')
-        const approvalResult = await crossChainService.executeAllApprovals(swapParams)
-        console.log(`✅ All approvals completed! Total transactions: ${approvalResult.totalApprovals}`)
+        console.log("🔐 Executing all required approvals...");
+        const approvalResult = await crossChainService.executeAllApprovals(
+          swapParams
+        );
+        console.log(
+          `✅ All approvals completed! Total transactions: ${approvalResult.totalApprovals}`
+        );
       } else {
-        console.log('✅ All approvals already exist!')
+        console.log("✅ All approvals already exist!");
       }
 
-      console.log('All approvals completed. Executing cross-chain swap...')
-      
-      // Execute the cross-chain swap
+      console.log("All approvals completed. Executing cross-chain swap...");
+
+      // Execute the cross-chain swap with proper token approval
+      console.log("Executing cross-chain swap with proper approvals...");
+
+      // Check and approve source token for CrossChain router (like the working script)
+      const sourceTokenContract = new ethers.Contract(
+        sourceToken.address,
+        [
+          "function allowance(address owner, address spender) view returns (uint256)",
+          "function approve(address spender, uint256 amount) returns (bool)",
+        ],
+        signer
+      );
+
+      const crossChainRouterAddress =
+        crossChainService.getCrossChainRouterContract(
+          sourceChain.id,
+          true
+        ).target;
+      const currentAllowance = await sourceTokenContract.allowance(
+        address,
+        crossChainRouterAddress
+      );
+
+      if (
+        BigInt(currentAllowance.toString()) < BigInt(amountInWei.toString())
+      ) {
+        console.log("📝 Approving source token for CrossChainRouter...");
+        const approveTx = await sourceTokenContract.approve(
+          crossChainRouterAddress,
+          amountInWei,
+          {
+            gasLimit: 100000,
+            gasPrice: ethers.parseUnits("25", "gwei"),
+          }
+        );
+        console.log(`🚀 Approve TX: ${approveTx.hash}`);
+        await approveTx.wait();
+        console.log("✅ Source token approval confirmed!");
+      } else {
+        console.log("✅ Sufficient allowance already exists!");
+      }
+
+      // Execute the cross-chain swap using the working script pattern
       const receipt = await crossChainService.executeCrossChainSwap(
         swapParams,
         quote.layerZeroFee
-      )
+      );
 
-      console.log('Cross-chain swap initiated:', receipt)
+      console.log("Cross-chain swap initiated:", receipt);
 
       // Parse transaction events
-      const events = crossChainService.parseTransactionEvents(receipt, sourceChain.id)
-      const swapEvent = events.find(e => e.type === 'CrossChainSwapInitiated')
-      
+      const events = crossChainService.parseTransactionEvents(
+        receipt,
+        sourceChain.id
+      );
+      const swapEvent = events.find(
+        (e) => e.type === "CrossChainSwapInitiated"
+      );
+
       // Get explorer URLs
       const explorerUrls = crossChainService.getExplorerUrls(
         receipt.transactionHash,
         sourceChain.id,
         destinationChain.id
-      )
+      );
 
       // Store cross-chain transaction in database
       const eventData = {
@@ -253,31 +402,33 @@ export default function CrossChainSwapPage() {
         sourceToken: {
           address: sourceToken.address,
           symbol: sourceToken.data.symbol,
-          amount: sourceAmount
+          amount: sourceAmount,
         },
         destinationToken: {
           address: destinationToken.address,
-          symbol: destinationToken.data.symbol
+          symbol: destinationToken.data.symbol,
         },
-        stableAmount: swapEvent ? ethers.formatUnits(swapEvent.stableAmount, 18) : ethers.formatUnits(quote.estimatedStableAmount, 18),
+        stableAmount: swapEvent
+          ? ethers.formatUnits(swapEvent.stableAmount, 18)
+          : ethers.formatUnits(quote.estimatedStableAmount, 18),
         amountOutMin: destinationAmount,
         layerZeroFee: ethers.formatEther(quote.layerZeroFee),
-        status: 'initiated',
+        status: "initiated",
         sourceBlockNumber: receipt.blockNumber,
         sourceBlockTimestamp: new Date(),
         sourceGasUsed: receipt.gasUsed?.toString(),
-        sourceGasPrice: receipt.gasPrice?.toString()
-      }
+        sourceGasPrice: receipt.gasPrice?.toString(),
+      };
 
       try {
-        await ApiService.createCrossChainEvent(eventData)
+        await ApiService.createCrossChainEvent(eventData);
       } catch (dbError) {
-        console.warn('Failed to store cross-chain event:', dbError)
+        console.warn("Failed to store cross-chain event:", dbError);
       }
 
-      const stableAmountFormatted = swapEvent 
+      const stableAmountFormatted = swapEvent
         ? ethers.formatUnits(swapEvent.stableAmount, 18)
-        : ethers.formatUnits(quote.estimatedStableAmount, 18)
+        : ethers.formatUnits(quote.estimatedStableAmount, 18);
 
       alert(`🎉 Cross-chain swap initiated successfully!
 
@@ -285,7 +436,9 @@ export default function CrossChainSwapPage() {
 • Transaction Hash: ${receipt.transactionHash}
 • Source: ${sourceAmount} ${sourceToken.data.symbol} (${sourceChain.name})
 • Bridge: ${parseFloat(stableAmountFormatted).toFixed(6)} PFUSD
-• Destination: ~${destinationAmount} ${destinationToken.data.symbol} (${destinationChain.name})
+• Destination: ~${destinationAmount} ${destinationToken.data.symbol} (${
+        destinationChain.name
+      })
 • LayerZero Fee: ${ethers.formatEther(quote.layerZeroFee)} ETH
 
 🌉 Cross-Chain Flow:
@@ -303,49 +456,61 @@ export default function CrossChainSwapPage() {
 • Source TX: ${explorerUrls.sourceTransaction}
 • LayerZero: ${explorerUrls.layerZeroScan}
 
-Your ${destinationToken.data.symbol} tokens will be delivered to ${address} on ${destinationChain.name}.`)
-      
+Your ${
+        destinationToken.data.symbol
+      } tokens will be delivered to ${address} on ${destinationChain.name}.`);
+
       // Reset form and refresh balances
-      setSourceAmount('')
-      setDestinationAmount('')
-      
+      setSourceAmount("");
+      setDestinationAmount("");
+
       // Refresh source balance after successful swap
-      if (sourceToken && address && sourceChain && currentChainId === sourceChain.id) {
+      if (
+        sourceToken &&
+        address &&
+        sourceChain &&
+        currentChainId === sourceChain.id
+      ) {
         try {
-          const provider = new ethers.BrowserProvider(window.ethereum)
+          const provider = new ethers.BrowserProvider(window.ethereum);
           const tokenContract = new ethers.Contract(
             sourceToken.address,
-            ['function balanceOf(address owner) view returns (uint256)'],
+            ["function balanceOf(address owner) view returns (uint256)"],
             provider
-          )
-          
-          const balance = await tokenContract.balanceOf(address)
-          const formattedBalance = ethers.formatUnits(balance, sourceToken.data.decimals)
-          setSourceBalance(parseFloat(formattedBalance).toFixed(6))
+          );
+
+          const balance = await tokenContract.balanceOf(address);
+          const formattedBalance = ethers.formatUnits(
+            balance,
+            sourceToken.data.decimals
+          );
+          setSourceBalance(parseFloat(formattedBalance).toFixed(6));
         } catch (error) {
-          console.error('Error refreshing source balance:', error)
+          console.error("Error refreshing source balance:", error);
         }
       }
     } catch (error: any) {
-      console.error('Error in cross-chain swap:', error)
-      
-      let errorMessage = 'Failed to execute cross-chain swap'
-      
-      if (error.message.includes('insufficient funds')) {
-        errorMessage = 'Insufficient funds for transaction fees'
-      } else if (error.message.includes('Token transfer failed')) {
-        errorMessage = 'Token transfer failed. Check your token balance and allowance.'
-      } else if (error.message.includes('execution reverted')) {
-        errorMessage = 'Transaction failed. Please check token balances and try again.'
-      } else if (error.message.includes('user rejected')) {
-        errorMessage = 'Transaction was rejected by user'
+      console.error("Error in cross-chain swap:", error);
+
+      let errorMessage = "Failed to execute cross-chain swap";
+
+      if (error.message.includes("insufficient funds")) {
+        errorMessage = "Insufficient funds for transaction fees";
+      } else if (error.message.includes("Token transfer failed")) {
+        errorMessage =
+          "Token transfer failed. Check your token balance and allowance.";
+      } else if (error.message.includes("execution reverted")) {
+        errorMessage =
+          "Transaction failed. Please check token balances and try again.";
+      } else if (error.message.includes("user rejected")) {
+        errorMessage = "Transaction was rejected by user";
       }
-      
-      alert(errorMessage)
+
+      alert(errorMessage);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   if (!mounted) {
     return (
@@ -357,7 +522,7 @@ Your ${destinationToken.data.symbol} tokens will be delivered to ${address} on $
           <p className="text-gray-500">Loading...</p>
         </div>
       </div>
-    )
+    );
   }
 
   if (!isConnected) {
@@ -367,10 +532,12 @@ Your ${destinationToken.data.symbol} tokens will be delivered to ${address} on $
           <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
             Cross-Chain Swap
           </h2>
-          <p className="text-gray-500">Please connect your wallet to use cross-chain swap</p>
+          <p className="text-gray-500">
+            Please connect your wallet to use cross-chain swap
+          </p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -381,9 +548,24 @@ Your ${destinationToken.data.symbol} tokens will be delivered to ${address} on $
         </h2>
         <div className="flex justify-end">
           <button className="p-2 text-gray-400 hover:text-gray-600">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+              />
             </svg>
           </button>
         </div>
@@ -408,30 +590,37 @@ Your ${destinationToken.data.symbol} tokens will be delivered to ${address} on $
               />
             </div>
           </div>
-          
+
           <div className="text-xs text-gray-500 mb-2">From Chain</div>
-          
-          <div className={`rounded-xl p-4 ${
-            sourceAmount && parseFloat(sourceAmount) > parseFloat(sourceBalance) 
-              ? 'bg-red-50 border border-red-200' 
-              : 'bg-gray-50'
-          }`}>
+
+          <div
+            className={`rounded-xl p-4 ${
+              sourceAmount &&
+              parseFloat(sourceAmount) > parseFloat(sourceBalance)
+                ? "bg-red-50 border border-red-200"
+                : "bg-gray-50"
+            }`}
+          >
             <input
               type="number"
               value={sourceAmount}
               onChange={(e) => setSourceAmount(e.target.value)}
               placeholder="0.00"
               className={`w-full bg-transparent text-2xl font-medium placeholder-gray-400 focus:outline-none ${
-                sourceAmount && parseFloat(sourceAmount) > parseFloat(sourceBalance)
-                  ? 'text-red-600'
-                  : 'text-gray-900'
+                sourceAmount &&
+                parseFloat(sourceAmount) > parseFloat(sourceBalance)
+                  ? "text-red-600"
+                  : "text-gray-900"
               }`}
             />
             <div className="text-xs mt-2">
               <div className="flex justify-between items-center">
                 <span className="text-gray-500">
-                  Balance: {sourceChain && currentChainId !== sourceChain.id ? (
-                    <span className="text-orange-500">Switch to {sourceChain.name}</span>
+                  Balance:{" "}
+                  {sourceChain && currentChainId !== sourceChain.id ? (
+                    <span className="text-orange-500">
+                      Switch to {sourceChain.name}
+                    </span>
                   ) : loadingSourceBalance ? (
                     <span className="inline-flex items-center gap-1">
                       <div className="w-3 h-3 border border-gray-300 border-t-transparent rounded-full animate-spin"></div>
@@ -445,16 +634,22 @@ Your ${destinationToken.data.symbol} tokens will be delivered to ${address} on $
                   type="button"
                   onClick={handleMaxAmount}
                   className="text-red-500 font-medium hover:text-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled={!sourceToken || parseFloat(sourceBalance) === 0 || (sourceChain && currentChainId !== sourceChain.id) || loadingSourceBalance}
+                  disabled={
+                    !sourceToken ||
+                    parseFloat(sourceBalance) === 0 ||
+                    (sourceChain && currentChainId !== sourceChain.id) ||
+                    loadingSourceBalance
+                  }
                 >
                   MAX
                 </button>
               </div>
-              {sourceAmount && parseFloat(sourceAmount) > parseFloat(sourceBalance) && (
-                <div className="text-red-500 mt-1">
-                  Insufficient balance. Maximum: {sourceBalance}
-                </div>
-              )}
+              {sourceAmount &&
+                parseFloat(sourceAmount) > parseFloat(sourceBalance) && (
+                  <div className="text-red-500 mt-1">
+                    Insufficient balance. Maximum: {sourceBalance}
+                  </div>
+                )}
             </div>
           </div>
         </div>
@@ -466,8 +661,18 @@ Your ${destinationToken.data.symbol} tokens will be delivered to ${address} on $
             onClick={handleSwapChains}
             className="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors duration-200"
           >
-            <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+            <svg
+              className="w-5 h-5 text-gray-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 14l-7 7m0 0l-7-7m7 7V3"
+              />
             </svg>
           </button>
         </div>
@@ -490,9 +695,9 @@ Your ${destinationToken.data.symbol} tokens will be delivered to ${address} on $
               />
             </div>
           </div>
-          
+
           <div className="text-xs text-gray-500 mb-2">To Chain</div>
-          
+
           <div className="bg-gray-50 rounded-xl p-4">
             <input
               type="number"
@@ -502,8 +707,11 @@ Your ${destinationToken.data.symbol} tokens will be delivered to ${address} on $
               readOnly
             />
             <div className="text-xs text-gray-500 mt-2">
-              Balance: {destinationChain && currentChainId !== destinationChain.id ? (
-                <span className="text-orange-500">Switch to {destinationChain.name}</span>
+              Balance:{" "}
+              {destinationChain && currentChainId !== destinationChain.id ? (
+                <span className="text-orange-500">
+                  Switch to {destinationChain.name}
+                </span>
               ) : loadingDestinationBalance ? (
                 <span className="inline-flex items-center gap-1">
                   <div className="w-3 h-3 border border-gray-300 border-t-transparent rounded-full animate-spin"></div>
@@ -517,13 +725,93 @@ Your ${destinationToken.data.symbol} tokens will be delivered to ${address} on $
         </div>
       </div>
 
+      {/* Swap Details */}
+      {sourceAmount && sourceToken && destinationToken && sourceChain && destinationChain && (
+        <div className="mt-4 p-4 bg-gray-50 rounded-xl border">
+          <div className="text-sm font-medium text-gray-700 mb-3">Swap Details</div>
+          
+          {loadingEstimate ? (
+            <div className="flex items-center justify-center py-4">
+              <div className="w-5 h-5 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+              <span className="ml-2 text-gray-500">Calculating estimates...</span>
+            </div>
+          ) : (
+            <div className="space-y-2 text-sm">
+              {swapRoute && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Route:</span>
+                  <span className="text-gray-900 font-medium text-right max-w-[200px] break-words">
+                    {swapRoute}
+                  </span>
+                </div>
+              )}
+              
+              {estimatedStableAmount && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Intermediate PFUSD:</span>
+                  <span className="text-gray-900 font-medium">
+                    {parseFloat(estimatedStableAmount).toFixed(6)} PFUSD
+                  </span>
+                </div>
+              )}
+              
+              {destinationAmount && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Expected Output:</span>
+                  <span className="text-green-600 font-medium">
+                    ~{destinationAmount} {destinationToken.data.symbol}
+                  </span>
+                </div>
+              )}
+              
+              {layerZeroFee && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600">LayerZero Fee:</span>
+                  <span className="text-orange-600 font-medium">
+                    {parseFloat(layerZeroFee).toFixed(6)} ETH
+                  </span>
+                </div>
+              )}
+              
+              <div className="flex justify-between pt-2 border-t border-gray-200">
+                <span className="text-gray-600">Estimated Time:</span>
+                <span className="text-blue-600 font-medium">3-6 minutes</span>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Chain Warning */}
+      {sourceChain && currentChainId !== sourceChain.id && (
+        <div className="mt-4 p-3 bg-orange-50 border border-orange-200 rounded-xl">
+          <div className="flex items-center gap-2">
+            <svg className="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+            <span className="text-orange-700 text-sm font-medium">
+              Please switch to {sourceChain.name} to execute this swap
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* Swap Button */}
       <div className="mt-6">
-        {sourceChain && destinationChain && sourceToken && destinationToken && sourceAmount ? (
+        {sourceChain &&
+        destinationChain &&
+        sourceToken &&
+        destinationToken &&
+        sourceAmount ? (
           <button
             type="button"
             onClick={handleCrossChainSwap}
-            disabled={loading || parseFloat(sourceAmount) > parseFloat(sourceBalance) || parseFloat(sourceAmount) <= 0}
+            disabled={
+              loading ||
+              parseFloat(sourceAmount) > parseFloat(sourceBalance) ||
+              parseFloat(sourceAmount) <= 0 ||
+              currentChainId !== sourceChain.id
+            }
             className="w-full bg-red-500 hover:bg-red-600 text-white font-medium py-4 px-6 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (
@@ -531,12 +819,14 @@ Your ${destinationToken.data.symbol} tokens will be delivered to ${address} on $
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                 Processing Cross-Chain Swap...
               </div>
+            ) : currentChainId !== sourceChain.id ? (
+              `Switch to ${sourceChain.name}`
             ) : parseFloat(sourceAmount) > parseFloat(sourceBalance) ? (
-              'Insufficient Balance'
+              "Insufficient Balance"
             ) : parseFloat(sourceAmount) <= 0 ? (
-              'Enter Amount'
+              "Enter Amount"
             ) : (
-              'Execute Cross-Chain Swap'
+              "Execute Cross-Chain Swap"
             )}
           </button>
         ) : (
@@ -545,10 +835,10 @@ Your ${destinationToken.data.symbol} tokens will be delivered to ${address} on $
             disabled
             className="w-full bg-red-500 text-white font-medium py-4 px-6 rounded-xl cursor-not-allowed opacity-50"
           >
-            {!isConnected ? 'Connect your Wallet' : 'Select Tokens and Chains'}
+            {!isConnected ? "Connect your Wallet" : "Select Tokens and Chains"}
           </button>
         )}
       </div>
     </div>
-  )
+  );
 }

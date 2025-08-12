@@ -13,16 +13,16 @@ const LAYER_ZERO_EIDS: { [key: number]: number } = {
   17000: 40217,    // Holesky
 }
 
-// Cross-chain router addresses from deployment (updated from your script)
+// Cross-chain router addresses from deployment-addresses.json
 const CROSSCHAIN_ROUTER_ADDRESSES: { [key: number]: string } = {
   11155111: '0xAdf3323e9B2D26Dfc17c5309390786264Dd2D494', // Ethereum Sepolia
   80002: '0x69c475d50afa8EAd344E85326369277F88b74CC6',    // Polygon Amoy
   421614: '0x4F8FD373bb8Df6DA0461D220D1D1018AA92b9157',  // Arbitrum Sepolia
   11155420: '0x97F4FE32fF553B6f426Ee1998956164638B75a44', // Optimism Sepolia
-  43113: '0x9F577e8A1be3ec65BE0fb139425988dfE438196e',   // Avalanche Fuji (updated)
+  43113: '0x9480AbA0DFe3bfC6080D279781afD4B1fFcfb8d8',   // Avalanche Fuji (from deployment-addresses.json)
   97: '0x0EBcFE9Fc5817DD541B2EAdc1e8fe92D35bc2470',     // BSC Testnet
   84532: '0x934b360A75F6AF046F421f9d386c840B4Ad45162',   // Base Sepolia
-  17000: '0xC411824F1695feeC0f9b8C3d4810c2FD1AB1000a',   // Holesky (updated)
+  17000: '0x3c7Fe5125Df4BB7Cc6f156E64Fd1949F07B9fA4d',   // Holesky (from deployment-addresses.json)
 }
 
 // DEX Router addresses for dual approvals
@@ -37,16 +37,16 @@ const DEX_ROUTER_ADDRESSES: { [key: number]: string } = {
   17000: '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',    // Holesky
 }
 
-// PFUSD stablecoin addresses (updated from your script)
+// PFUSD stablecoin addresses from deployment-addresses.json
 const PFUSD_ADDRESSES: { [key: number]: string } = {
   11155111: '0xDE44975f2060d977Dd7c7B93C7d7aFec8fFcb1a2', // Ethereum Sepolia
   80002: '0x91735d81732902Cb2a80Dcffc2188592B4031226',    // Polygon Amoy
   421614: '0xCE24E5cA05FDD47D8629465978Ff887091556929',   // Arbitrum Sepolia
   11155420: '0xdFA54fa7F1f275ab103D4f0Ad65Bc2Fb239E43f9', // Optimism Sepolia
-  43113: '0x55C192C8bF6749F65dE78E524273A481C4b1f667',    // Avalanche Fuji (updated)
+  43113: '0x53CDBE278328314F6208776cBF7Da0a0C2c6Feea',    // Avalanche Fuji (from deployment-addresses.json)
   97: '0x2258Db39FCdAB899661fBA6a1246Cc7a0F4E9ff0',      // BSC Testnet
   84532: '0x0E4adEe6aCb907Ef3745AcB3202b8511A6FC6F52',    // Base Sepolia
-  17000: '0x0a44Dc381949F6128Ca0615B4c68F0D15818dE74',    // Holesky (updated)
+  17000: '0xfAe78B00a8e7d9eDd1cCFBa0Ca61be311Ce59C08',    // Holesky (from deployment-addresses.json)
 }
 
 export interface CrossChainSwapParams {
@@ -162,15 +162,12 @@ export class CrossChainService {
       // First estimate the stable amount from source swap
       const estimatedStableAmount = await this.estimateSwapOutput(params.sourceToken, params.amountIn)
       
-      // Get destination chain's stablecoin address (this is what the contract expects)
-      const destinationStablecoinAddress = this.getPFUSDAddress(params.destinationChainId)
-      
-      // Quote LayerZero fees using destination chain's stablecoin address
+      // Quote LayerZero fees using destination token address (like working script)
       const options = '0x' // Default options
       const quotedFee = await router.quoteCrossChainSwap(
         destinationEID,
         params.recipient,
-        destinationStablecoinAddress, // Use destination chain's stablecoin address
+        params.destinationToken, // Use destination token address (like working script)
         estimatedStableAmount,
         params.amountOutMin,
         options,
@@ -347,7 +344,7 @@ export class CrossChainService {
       destinationEID,
       params.recipient,
       params.sourceToken,
-      destinationStablecoinAddress, // Use destination chain's stablecoin address
+      params.destinationToken, // Use destination token address (like working script)
       params.amountIn,
       params.amountOutMin,
       options,
